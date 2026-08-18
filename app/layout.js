@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "../components/navigation/Navbar";
 import { Footer } from "../components/navigation/Footer";
+import { SmoothScroll } from "../components/shared/SmoothScroll";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +58,7 @@ export default function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: themeInitializerScript }} />
       </head>
       <body className={`${manrope.className} min-h-screen flex flex-col bg-background text-foreground font-sans`}>
+        <SmoothScroll />
         <Suspense fallback={<div className="h-16 border-b border-border bg-background" />}>
           <Navbar />
         </Suspense>
