@@ -75,7 +75,7 @@ export default function PracticeClient() {
   }
 
   return (
-    <Container className="py-8 max-w-5xl bg-black text-white">
+    <Container className="py-8 max-w-6xl bg-black text-white">
       {/* Page Header */}
       <div className="flex flex-col items-center gap-3 border-b border-hairline-dark py-8 md:py-10 mb-8 text-center">
         <SectionBadge variant="emerald">Training Presets</SectionBadge>
@@ -147,8 +147,8 @@ export default function PracticeClient() {
                 <div className={cn("p-3 w-12 h-12 rounded-2xl border flex items-center justify-center mb-4 transition-transform group-hover:scale-110", mode.iconBg)}>
                   <Icon className="h-6 w-6" />
                 </div>
-                <CardTitle className="text-lg font-bold text-white">{mode.title}</CardTitle>
-                <CardDescription className="text-xs text-shade-40 mt-2 min-h-[75px] leading-relaxed">
+                <CardTitle className="text-xl font-bold text-white">{mode.title}</CardTitle>
+                <CardDescription className="text-sm text-shade-40 mt-2 min-h-[80px] leading-relaxed">
                   {mode.description}
                 </CardDescription>
               </CardHeader>

@@ -254,13 +254,13 @@ export default function ProfileClient() {
           <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
             <span className="text-shade-40 block font-mono">High Score (Timed):</span>
             <strong className="text-lg text-amber-300 block mt-1 font-mono">
-              {profile.records.highScoreTimed.toLocaleString()} pts
+              {(profile.records.bestTimedScore ?? 0).toLocaleString()} pts
             </strong>
           </div>
           <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
             <span className="text-shade-40 block font-mono">High Score (Speed):</span>
             <strong className="text-lg text-emerald-300 block mt-1 font-mono">
-              {profile.records.highScoreSpeed.toLocaleString()} pts
+              {(profile.records.mostSpeedRunSolves ?? 0).toLocaleString()} solves
             </strong>
           </div>
         </CardContent>
@@ -281,7 +281,7 @@ export default function ProfileClient() {
         </CardHeader>
         <CardContent className="p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {ACHIEVEMENTS.map((ach) => {
-            const isUnlocked = profile.achievements.includes(ach.id);
+            const isUnlocked = (profile.unlockedAchievements ?? []).includes(ach.id);
             return (
               <div
                 key={ach.id}
