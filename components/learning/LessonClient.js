@@ -257,7 +257,7 @@ export function LessonClient({ lessonId }) {
       </div>
 
       {/* Main Slide Card */}
-      <div className="min-h-[380px] flex flex-col justify-between border border-hairline-dark bg-canvas-night-elevated p-6 md:p-8 rounded-2xl">
+      <div className="min-h-[520px] md:min-h-[460px] flex flex-col justify-between border border-hairline-dark bg-canvas-night-elevated p-6 md:p-8 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
         <AnimatePresence mode="wait">
           {!isQuizSlide ? (
             <motion.div

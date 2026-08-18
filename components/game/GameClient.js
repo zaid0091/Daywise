@@ -514,89 +514,99 @@ export function GameClient({ mode: initialMode }) {
   const dateDetails = parseDateDetails();
   const explanation = dateDetails ? getDoomsdayExplanation(dateDetails.year, dateDetails.month, dateDetails.day) : null;
 
+  // Choose the color theme based on the active mode
+  const modeColorMap = {
+    relaxed: { text: "text-cyan-400", border: "border-cyan-500/30", bg: "bg-cyan-500/10", shadow: "shadow-[0_0_15px_rgba(34,211,238,0.15)]", dot: "bg-cyan-400" },
+    timed: { text: "text-emerald-400", border: "border-emerald-500/30", bg: "bg-emerald-500/10", shadow: "shadow-[0_0_15px_rgba(52,211,153,0.15)]", dot: "bg-emerald-400" },
+    speed: { text: "text-amber-400", border: "border-amber-500/30", bg: "bg-amber-500/10", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.15)]", dot: "bg-amber-400" },
+    accuracy: { text: "text-indigo-400", border: "border-indigo-500/30", bg: "bg-indigo-500/10", shadow: "shadow-[0_0_15px_rgba(129,140,248,0.15)]", dot: "bg-indigo-400" },
+    daily: { text: "text-purple-400", border: "border-purple-500/30", bg: "bg-purple-500/10", shadow: "shadow-[0_0_15px_rgba(168,85,247,0.15)]", dot: "bg-purple-400" },
+  };
+  const modeStyle = modeColorMap[initialMode] || modeColorMap.relaxed;
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center py-6 md:py-10 select-none bg-black text-white">
+    <div className="flex-1 flex flex-col items-center justify-center py-8 md:py-12 select-none bg-black text-white">
       <Container className="max-w-2xl flex flex-col gap-6 w-full px-4">
-        {/* Game Header */}
+        {/* Game Header Row */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => store.resetGame()}
-            className="flex items-center gap-1 text-xs text-shade-40 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded px-1.5 py-0.5 cursor-pointer"
+            className="flex items-center gap-1.5 text-xs text-shade-40 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 rounded px-2.5 py-1.5 border border-white/5 hover:border-white/15 bg-white/[0.02] cursor-pointer"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Quit Arena
           </button>
           
           <div className="flex items-center gap-2">
             <span className={cn(
-              "text-xs uppercase tracking-wider font-mono font-bold px-3 py-1 rounded-full border shadow-sm",
-              initialMode === "relaxed" && "bg-cyan-500/15 border-cyan-500/30 text-cyan-300",
-              initialMode === "timed" && "bg-emerald-500/15 border-emerald-500/30 text-emerald-300",
-              initialMode === "speed" && "bg-amber-500/15 border-amber-500/30 text-amber-300",
-              initialMode === "accuracy" && "bg-indigo-500/15 border-indigo-500/30 text-indigo-300",
-              initialMode === "daily" && "bg-purple-500/15 border-purple-500/30 text-purple-300"
+              "inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[11px] font-mono font-bold tracking-wider uppercase select-none transition-all duration-300 backdrop-blur-md",
+              modeStyle.border,
+              modeStyle.bg,
+              modeStyle.text,
+              modeStyle.shadow
             )}>
+              <span className={cn("h-1.5 w-1.5 rounded-full animate-pulse", modeStyle.dot)} />
               {initialMode} &bull; {difficulty}
             </span>
           </div>
         </div>
 
         {/* HUD Stats Dashboard */}
-        <div className="flex items-center justify-between border-b border-hairline-dark pb-3.5">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-shade-40 uppercase font-semibold tracking-wider font-mono">Progress</span>
-            <span className="font-mono text-sm font-bold text-white">
-              {isEndless ? `Solves: ${store.answers.length}` : `${questionNum} of 10`}
+        <div className="grid grid-cols-3 gap-3 bg-white/[0.02] border border-hairline-dark p-4 rounded-2xl">
+          <div className="flex flex-col items-center justify-center text-center py-1">
+            <span className="text-[10px] text-shade-50 uppercase font-semibold tracking-wider font-mono">Progress</span>
+            <span className="font-mono text-base font-bold text-white mt-1">
+              {isEndless ? `Solves: ${store.answers.length}` : `${questionNum} / 10`}
             </span>
           </div>
 
-          <div className="flex items-center gap-5 sm:gap-6">
-            <div className="text-right">
-              <span className="text-[10px] text-shade-40 uppercase font-semibold tracking-wider block font-mono">Score</span>
+          <div className="flex flex-col items-center justify-center text-center border-x border-hairline-dark py-1 relative">
+            <span className="text-[10px] text-shade-50 uppercase font-semibold tracking-wider font-mono">Score</span>
+            <div className="flex items-center justify-center gap-1.5 mt-1">
               <span className="font-mono text-base font-bold text-amber-300">{store.score}</span>
+              {store.streak > 0 && (
+                <span className="inline-flex items-center gap-0.5 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded text-[9px] text-amber-300 font-bold font-mono">
+                  {store.streak}x
+                </span>
+              )}
             </div>
-            
-            {store.streak > 0 && (
-              <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/35 px-3 py-1 rounded-full text-amber-300 font-bold text-xs font-mono shadow-[0_0_15px_rgba(245,158,11,0.25)]">
-                <Flame className="h-4 w-4 fill-amber-400 text-amber-400" />
-                <span>{store.streak}x</span>
-              </div>
-            )}
+          </div>
 
-            <div className="text-right">
-              <span className="text-[10px] text-shade-40 uppercase font-semibold tracking-wider block font-mono">
-                {initialMode === "speed" ? "Time Left" : "Timer"}
-              </span>
-              <span className={cn(
-                "font-mono text-base font-bold",
-                initialMode === "speed" && store.elapsedTime <= 10 ? "text-rose-400 animate-pulse" : "text-cyan-300"
-              )}>
-                {store.elapsedTime}s
-              </span>
-            </div>
+          <div className="flex flex-col items-center justify-center text-center py-1">
+            <span className="text-[10px] text-shade-50 uppercase font-semibold tracking-wider font-mono">
+              {initialMode === "speed" ? "Time Left" : "Timer"}
+            </span>
+            <span className={cn(
+              "font-mono text-base font-bold mt-1",
+              initialMode === "speed" && store.elapsedTime <= 10 ? "text-rose-400 animate-pulse" : "text-cyan-300"
+            )}>
+              {store.elapsedTime}s
+            </span>
           </div>
         </div>
 
         {/* Progress Bar with Multi-stop Gradient */}
         {!isEndless && (
-          <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden -mt-3">
+          <div className="w-full bg-white/[0.05] h-1.5 rounded-full overflow-hidden -mt-2">
             <div
-              className="bg-gradient-to-r from-emerald-400 via-teal-400 to-indigo-500 h-full transition-all duration-300 rounded-full"
+              className="bg-gradient-to-r from-emerald-400 via-teal-400 to-indigo-500 h-full transition-all duration-500 rounded-full"
               style={{ width: `${Math.round(((questionNum - 1) / 10) * 100)}%` }}
             />
           </div>
         )}
 
         {/* Active Question Target Date Display */}
-        <Card className="border border-emerald-500/20 text-center py-8 px-4 bg-[#090c12] shadow-[0_0_35px_rgba(16,185,129,0.06),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
-          <CardContent className="p-0 flex flex-col gap-2">
-            <span className="eyebrow-cap text-emerald-400 font-mono">Calculate Weekday</span>
-            <h2 className="display-lg text-white select-none font-heading">
+        <div className="relative border border-white/[0.06] text-center py-10 px-6 bg-gradient-to-b from-[#090b0e] to-[#040507] shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.03)] rounded-2xl overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-shade-50 font-mono font-bold leading-none">
+              Calculate Weekday
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-light tracking-tight text-white select-none my-2.5">
               {currentQuestion?.formattedDate}
             </h2>
-            <p className="text-xs text-shade-40">Which day of the week was this?</p>
-          </CardContent>
-        </Card>
+            <p className="text-xs text-shade-40 leading-none">Which day of the week was this?</p>
+          </div>
+        </div>
 
         {/* Answer Keyboard Grid (7 Weekday Buttons) */}
         <div className="space-y-4">
@@ -608,17 +618,17 @@ export function GameClient({ mode: initialMode }) {
               const isCorrect = day === currentQuestion?.correctAnswer;
               const isSelected = store.currentAnswer?.selectedAnswer === day;
 
-              let btnClass = "border-hairline-dark bg-canvas-night-elevated text-white hover:border-emerald-400/40 hover:bg-white/5";
+              let btnClass = "border-hairline-dark bg-canvas-night-elevated text-white hover:border-white/20 hover:bg-white/[0.04]";
 
               if (hasAnswered) {
                 if (isSelected) {
                   btnClass = isCorrect
-                    ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-[0_0_18px_rgba(16,185,129,0.35)] cursor-default font-bold"
-                    : "bg-rose-500/20 border-rose-500 text-rose-300 cursor-default font-bold";
+                    ? "bg-emerald-500/15 border-emerald-400 text-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.3)] font-bold scale-[0.98]"
+                    : "bg-rose-500/15 border-rose-400 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.3)] font-bold scale-[0.98]";
                 } else if (isCorrect) {
-                  btnClass = "border-emerald-500/40 text-emerald-400 bg-emerald-500/10 cursor-default font-bold";
+                  btnClass = "border-emerald-500/40 text-emerald-400 bg-emerald-500/10 font-bold";
                 } else {
-                  btnClass = "opacity-30 border-hairline-dark text-shade-60 pointer-events-none cursor-default";
+                  btnClass = "opacity-20 border-hairline-dark text-shade-60 pointer-events-none";
                 }
               }
 
@@ -628,13 +638,13 @@ export function GameClient({ mode: initialMode }) {
                   disabled={hasAnswered}
                   onClick={() => handleChoice(day)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center h-14 rounded-xl border text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 cursor-pointer select-none",
+                    "relative flex flex-col items-center justify-center h-16 rounded-xl border text-[13px] font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 cursor-pointer select-none active:scale-95",
                     btnClass
                   )}
                 >
-                  <span className="block truncate px-1">{day.slice(0, 3)}</span>
-                  <span className="text-[9px] font-mono text-shade-50 block mt-0.5">
-                    [{keyShortcut}]
+                  <span className="block truncate px-1 font-bold">{day.slice(0, 3)}</span>
+                  <span className="text-[10px] font-mono text-shade-50 block mt-1 font-medium">
+                    {keyShortcut}
                   </span>
                 </button>
               );
@@ -652,62 +662,103 @@ export function GameClient({ mode: initialMode }) {
               >
                 {/* Incorrect explanation walkthrough */}
                 {!store.currentAnswer.isCorrect && explanation && (
-                  <Card className="border border-rose-500/25 bg-canvas-night-elevated rounded-2xl shadow-[0_0_20px_rgba(244,63,94,0.08)]">
-                    <CardContent className="p-5 flex flex-col gap-4 text-xs leading-relaxed text-shade-40 font-sans">
-                      <div className="flex items-center gap-2 text-rose-300 font-semibold text-xs">
-                        <XCircle className="h-4 w-4 shrink-0 text-rose-400" />
-                        <span>Incorrect. Let&apos;s review the 4-step Doomsday proof:</span>
+                  <div className="border border-rose-500/20 bg-[#090b0d] rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
+                    {/* Header */}
+                    <div className="flex items-center gap-2 border-b border-hairline-dark p-5 bg-gradient-to-r from-rose-500/[0.04] to-transparent">
+                      <XCircle className="h-5 w-5 shrink-0 text-rose-400" />
+                      <span className="text-sm font-semibold text-rose-300 font-heading">
+                        Incorrect. Let&apos;s review the 4-step Doomsday proof:
+                      </span>
+                    </div>
+
+                    <div className="p-5 space-y-6">
+                      {/* Vertical Stepper Timeline */}
+                      <div className="relative pl-7 space-y-6">
+                        {/* Connecting line */}
+                        <div className="absolute left-[9px] top-3 bottom-3 w-px bg-hairline-dark" />
+
+                        {/* Step 1 */}
+                        <div className="relative flex items-start gap-4">
+                          <span className="absolute -left-[27px] flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500/10 border border-indigo-400/30 text-[9px] font-mono font-bold text-indigo-300">
+                            1
+                          </span>
+                          <div className="space-y-0.5">
+                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Century Anchor</span>
+                            <p className="text-sm text-shade-30 mt-1">
+                              For the {explanation.centuryStr}, start with <strong className="text-indigo-300">{explanation.centuryDay}</strong> (Code {explanation.centuryCode}).
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="relative flex items-start gap-4">
+                          <span className="absolute -left-[27px] flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-400/30 text-[9px] font-mono font-bold text-cyan-300">
+                            2
+                          </span>
+                          <div className="space-y-0.5">
+                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Year Offset</span>
+                            <p className="text-sm text-shade-30 mt-1 leading-relaxed">
+                              {explanation.yearDigits} / 12 = {explanation.yearDiv12} rem {explanation.yearRem12}. Leaps: {explanation.yearRem12}/4 = {explanation.yearLeaps}. <br />
+                              Sum = {explanation.yearDiv12 + explanation.yearRem12 + explanation.yearLeaps} &rarr; mod 7 = <span className="text-cyan-300 font-mono font-bold">+{explanation.yearOffset}</span>. <br />
+                              Year Doomsday = {explanation.centuryDay} + {explanation.yearOffset} = <strong className="text-cyan-200">{explanation.yearDoomsdayDay}</strong>.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="relative flex items-start gap-4">
+                          <span className="absolute -left-[27px] flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/10 border border-teal-400/30 text-[9px] font-mono font-bold text-teal-300">
+                            3
+                          </span>
+                          <div className="space-y-0.5">
+                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Month Anchor</span>
+                            <p className="text-sm text-shade-30 mt-1">
+                              Doomsday is <strong className="text-teal-300">{explanation.monthName} {explanation.monthAnchorDay}</strong>.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Step 4 */}
+                        <div className="relative flex items-start gap-4">
+                          <span className="absolute -left-[27px] flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-400/30 text-[9px] font-mono font-bold text-emerald-300">
+                            4
+                          </span>
+                          <div className="space-y-0.5">
+                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Target Date</span>
+                            <p className="text-sm text-shade-30 mt-1 leading-relaxed">
+                              {dateDetails.day} is {explanation.targetDiffAbs} days {explanation.targetDiff >= 0 ? "after" : "before"} the anchor {explanation.monthAnchorDay}. <br />
+                              {explanation.yearDoomsdayDay} {explanation.targetDiffSign} {explanation.targetDiffAbs} days = <strong className="text-emerald-300 text-[15px] font-bold">{explanation.finalDay}</strong>.
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="space-y-2.5 bg-black/70 p-4 rounded-xl border border-hairline-dark font-sans text-xs">
-                        <div className="flex items-start gap-2.5">
-                          <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-mono font-bold shrink-0">Step 1</span>
-                          <p><strong className="text-white">Century Anchor:</strong> For the {explanation.centuryStr}, start with <strong className="text-indigo-300">{explanation.centuryDay}</strong> (Code {explanation.centuryCode}).</p>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono font-bold shrink-0">Step 2</span>
-                          <p>
-                            <strong className="text-white">Year Offset:</strong> {explanation.yearDigits} / 12 = {explanation.yearDiv12} rem {explanation.yearRem12}. Leaps: {explanation.yearRem12}/4 = {explanation.yearLeaps}. <br />
-                            Sum = {explanation.yearDiv12 + explanation.yearRem12 + explanation.yearLeaps} &rarr; mod 7 = <span className="text-cyan-300 font-mono font-bold">+{explanation.yearOffset}</span>. <br />
-                            Year Doomsday = {explanation.centuryDay} + {explanation.yearOffset} = <strong className="text-cyan-200">{explanation.yearDoomsdayDay}</strong>.
-                          </p>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <span className="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-[10px] font-mono font-bold shrink-0">Step 3</span>
-                          <p><strong className="text-white">Month Anchor:</strong> Doomsday is <strong className="text-teal-300">{explanation.monthName} {explanation.monthAnchorDay}</strong>.</p>
-                        </div>
-                        <div className="flex items-start gap-2.5">
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold shrink-0">Step 4</span>
-                          <p>
-                            <strong className="text-white">Target Date:</strong> {dateDetails.day} is {explanation.targetDiffAbs} days {explanation.targetDiff >= 0 ? "after" : "before"} the anchor {explanation.monthAnchorDay}. <br />
-                            {explanation.yearDoomsdayDay} {explanation.targetDiffSign} {explanation.targetDiffAbs} days = <strong className="text-emerald-300 text-sm font-bold">{explanation.finalDay}</strong>.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between items-center pt-1">
-                        <span className="text-[10px] text-shade-50">Press <kbd className="kbd-badge">Enter</kbd> to advance</span>
+                      {/* Footer Actions */}
+                      <div className="flex justify-between items-center border-t border-hairline-dark pt-4">
+                        <span className="text-[10px] text-shade-50 font-mono flex items-center gap-1">
+                          Press <kbd className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded font-mono text-[9px] text-white">Enter</kbd> to advance
+                        </span>
                         <Button
                           onClick={() => store.goToNextQuestion()}
                           variant="primary"
                           size="sm"
-                          className="flex items-center gap-1 text-xs font-bold"
+                          className="flex items-center gap-1.5 text-xs font-bold"
                         >
                           Next Date <ArrowRight className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 )}
 
                 {/* Correct answer brief alert */}
                 {store.currentAnswer.isCorrect && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/25 p-3.5 rounded-xl flex items-center justify-between text-emerald-300 text-xs">
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 p-4 rounded-xl flex items-center justify-between text-emerald-300 text-sm shadow-[0_0_15px_rgba(16,185,129,0.1)]">
                     <span className="font-semibold flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                      <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />
                       Correct solve! (+{store.currentAnswer.scoreGained} pts)
                     </span>
-                    <span className="font-mono">
+                    <span className="font-mono text-xs font-bold">
                       {store.currentAnswer.responseTimeSeconds.toFixed(2)}s
                     </span>
                   </div>
