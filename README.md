@@ -144,8 +144,8 @@ daywise/
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/daywise.git
-   cd daywise
+   git clone https://github.com/zaid0091/Daywise.git
+   cd Daywise
    ```
 
 2. **Install dependencies**:
