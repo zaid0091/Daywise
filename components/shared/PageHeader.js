@@ -21,7 +21,7 @@ export function PageHeader({ eyebrow, title, description, action, className, var
           {title}
         </h1>
         {description && (
-          <p className="text-sm md:text-base text-shade-40 max-w-xl leading-relaxed mx-auto">
+          <p className="text-sm md:text-base text-zinc-600 dark:text-zinc-400 max-w-xl leading-relaxed mx-auto">
             {description}
           </p>
         )}
