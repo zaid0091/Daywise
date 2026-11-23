@@ -2,10 +2,16 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Container } from "../ui/Container";
 
 export function Footer() {
+  const pathname = usePathname();
   const currentYear = new Date().getFullYear();
+
+  if (pathname !== "/") {
+    return null;
+  }
 
   return (
     <footer className="w-full border-t border-hairline-dark bg-black mt-auto overflow-hidden pb-16 md:pb-0">
