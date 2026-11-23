@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default function AccuracyPracticePage() {
   return (
-    <Suspense fallback={<div className="py-20 text-center font-semibold text-muted">Loading Accuracy Arena...</div>}>
+    <Suspense fallback={<div className="py-20 text-center text-shade-50 font-medium">Loading</div>}>
       <GameClient mode="accuracy" />
     </Suspense>
   );
