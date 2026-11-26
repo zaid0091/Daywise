@@ -3,6 +3,10 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function SmoothScroll() {
   const pathname = usePathname();
@@ -10,40 +14,39 @@ export function SmoothScroll() {
 
   useEffect(() => {
     const lenis = new Lenis({
-      // Ultra-low lerp (0.05) for maximum fluid glide and silky momentum decay
-      lerp: 0.05,
+      lerp: 0.06,
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 0.8, // High-precision damping for scroll wheel notches
-      touchMultiplier: 1.5, // Natural, organic trackpad response
-      syncTouch: true,      // Synchronize touch devices and trackpads with Lenis physics
-      syncTouchLerp: 0.08,  // Snappy responsive tracking on touch devices
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.4,
+      syncTouch: true,
+      syncTouchLerp: 0.08,
       infinite: false,
     });
 
     lenisRef.current = lenis;
+    lenis.on("scroll", ScrollTrigger.update);
 
-    // requestAnimationFrame scroll loop
-    let animationFrameId;
-    function raf(time) {
-      lenis.raf(time);
-      animationFrameId = requestAnimationFrame(raf);
-    }
-    animationFrameId = requestAnimationFrame(raf);
+    const tick = (time) => {
+      lenis.raf(time * 1000);
+    };
 
-    // Clean up on unmount
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
+
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      gsap.ticker.remove(tick);
+      lenis.off("scroll", ScrollTrigger.update);
       lenis.destroy();
       lenisRef.current = null;
     };
   }, []);
 
-  // Ensure scroll is reset to the top immediately upon page transitions
   useEffect(() => {
     if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
+      ScrollTrigger.refresh();
     }
   }, [pathname]);
 
