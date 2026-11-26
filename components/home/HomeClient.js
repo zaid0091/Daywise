@@ -23,11 +23,26 @@ import { Button } from "../ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/Card";
 import { SectionBadge } from "../ui/SectionBadge";
 import { ApolloDemoWidget } from "../game/ApolloDemoWidget";
+import { Hero3DStage } from "./Hero3DStage";
+import { Hero3DCard } from "./Hero3DCard";
 
 export function HomeClient() {
   const [mounted, setMounted] = React.useState(false);
+  const heroMouseRef = React.useRef({ x: 0, y: 0 });
   React.useEffect(() => {
     setMounted(true);
+  }, []);
+
+  const handleHeroPointerMove = React.useCallback((e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    heroMouseRef.current = {
+      x: ((e.clientX - rect.left) / rect.width - 0.5) * 2,
+      y: ((e.clientY - rect.top) / rect.height - 0.5) * 2,
+    };
+  }, []);
+
+  const handleHeroPointerLeave = React.useCallback(() => {
+    heroMouseRef.current = { x: 0, y: 0 };
   }, []);
 
   const isReducedMotion = useReducedMotion();
@@ -41,106 +56,70 @@ export function HomeClient() {
 
   return (
     <div className="bg-black text-white min-h-screen">
-      {/* 1. HERO — Vibrant Animated Dotted Canvas with Multi-Color Ambient Glow */}
-      <section className="relative py-16 md:py-24 lg:py-32 border-b border-hairline-dark overflow-hidden">
-        {/* Animated Dotted Matrix Overlay */}
-        <div className="absolute inset-0 bg-grid-dots mask-radial-faded opacity-35 pointer-events-none" />
+      {/* 1. HERO — Nocturnal Perpetual-Calendar Split */}
+      <section
+        onPointerMove={handleHeroPointerMove}
+        onPointerLeave={handleHeroPointerLeave}
+        className="relative py-20 md:py-28 lg:py-32 border-b border-hairline-dark overflow-hidden"
+      >
+        {/* Quiet 3D Mod-7 Orbital Stage */}
+        <Hero3DStage mouseRef={heroMouseRef} />
 
-        {/* Ambient Color Glow Orbs */}
-        <div className="absolute -top-12 right-1/4 w-[550px] h-[450px] bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent blur-[140px] pointer-events-none rounded-full animate-glow-primary" />
-        <div className="absolute top-8 -left-12 w-[600px] h-[480px] bg-gradient-to-tr from-indigo-600/12 via-purple-600/08 to-transparent blur-[150px] pointer-events-none rounded-full animate-glow-secondary" />
-
-        {/* Floating Constellation Micro-Dots */}
-        {!shouldReduceMotion && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[
-              { top: "20%", left: "15%", delay: 0, duration: 8, color: "bg-emerald-400" },
-              { top: "65%", left: "10%", delay: 1.5, duration: 10, color: "bg-indigo-400" },
-              { top: "30%", left: "55%", delay: 0.8, duration: 9, color: "bg-aloe" },
-              { top: "75%", left: "80%", delay: 2, duration: 11, color: "bg-teal-300" },
-              { top: "15%", left: "85%", delay: 1, duration: 7, color: "bg-amber-300" },
-            ].map((dot, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0.3, y: 0, x: 0 }}
-                animate={{
-                  opacity: [0.2, 0.7, 0.2],
-                  y: [0, -18, 0],
-                  x: [0, 10, 0],
-                }}
-                transition={{
-                  duration: dot.duration,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: dot.delay,
-                }}
-                style={{ top: dot.top, left: dot.left }}
-                className={`absolute h-1.5 w-1.5 rounded-full ${dot.color} shadow-[0_0_8px_currentColor]`}
-              />
-            ))}
-          </div>
-        )}
+        {/* Readability Radial Vignette on Left Text Column */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_25%_50%,rgba(0,0,0,0.85)_0%,transparent_75%)] pointer-events-none"
+        />
 
         <Container className="relative z-10 max-w-7xl">
-          <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center">
-            {/* Left Column — Main Headlines & CTAs */}
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Left Column — Headline & Two Actions */}
             <motion.div
               initial={heroInitial}
               animate={heroEntrance}
-              transition={{ ...transition, delay: 0.1 }}
-              className="lg:col-span-6 xl:col-span-7 flex flex-col items-start text-left gap-5 md:gap-7"
+              transition={{ ...transition, delay: 0.08 }}
+              className="lg:col-span-6 xl:col-span-7 flex flex-col items-start text-left gap-6"
             >
-              <SectionBadge variant="emerald">
-                Conway&apos;s Mental Algorithm
-              </SectionBadge>
+              <span className="text-xs font-mono text-shade-40">
+                Conway&apos;s Doomsday Rule
+              </span>
 
-              <h1 className="display-xl lg:display-xxl text-white tracking-tight leading-[1.02] select-none font-heading">
-                Know the day.
+              <h1 className="display-xl lg:display-xxl text-white tracking-tight leading-[1.02] select-none font-heading font-normal">
+                Know the day
                 <br />
-                <span className="bg-gradient-to-r from-aloe via-emerald-300 to-teal-200 bg-clip-text text-transparent font-normal">
-                  Without checking.
+                <span className="text-emerald-400">
+                  Without checking
                 </span>
               </h1>
 
               <p className="text-base sm:text-lg text-shade-40 max-w-xl leading-relaxed">
-                Master the Doomsday Rule to calculate the day of the week for any date in history — entirely in your head in seconds.
+                Calculate the weekday for any date in history mentally in seconds using John Conway&apos;s anchor-day algorithm.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pt-1">
-                <Button asChild variant="primary" size="lg" className="w-full sm:w-auto px-8 shadow-[0_0_25px_rgba(255,255,255,0.18)]">
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2">
+                <Button asChild variant="primary" size="lg" className="w-full sm:w-auto px-8">
                   <Link href="/learn" className="flex items-center justify-center gap-2">
-                    Start Learning <ArrowRight className="h-4.5 w-4.5" />
+                    Start learning <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
                   </Link>
                 </Button>
-                <Button asChild variant="outline-on-dark" size="lg" className="w-full sm:w-auto px-7 border-white/20 hover:border-emerald-400/50">
+                <Button asChild variant="outline-on-dark" size="lg" className="w-full sm:w-auto px-7 border-white/15 hover:border-white/30">
                   <Link href="/practice" className="flex items-center justify-center gap-2">
-                    Practice Arenas
+                    Practice arenas
                   </Link>
                 </Button>
-              </div>
-
-              {/* Micro feature checklist with emerald accents */}
-              <div className="pt-3 flex flex-wrap gap-4 sm:gap-6 text-xs text-shade-40 font-mono border-t border-hairline-dark/60 w-full">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 5 Core Lessons
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 4 Practice Modes
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 100% Offline
-                </div>
               </div>
             </motion.div>
 
-            {/* Right Column — Interactive Simulator Card with Luminous Rim */}
+            {/* Right Column — 3D Perspective Interactive Simulator Card */}
             <motion.div
               initial={heroInitial}
               animate={heroEntrance}
               transition={{ ...transition, delay: 0.25 }}
               className="lg:col-span-6 xl:col-span-5 w-full flex justify-center lg:justify-end"
             >
-              <ApolloDemoWidget />
+              <Hero3DCard>
+                <ApolloDemoWidget />
+              </Hero3DCard>
             </motion.div>
           </div>
         </Container>
