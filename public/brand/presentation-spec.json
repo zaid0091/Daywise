@@ -1,0 +1,33 @@
+{
+  "brand": "Daywise",
+  "tagline": "Know the day. Without checking.",
+  "brief": "Interactive mental-math trainer for John Conway's Doomsday Rule — calculating the weekday of any date in seconds.",
+  "adjectives": ["precise", "mathematical", "sharp", "effortless", "dark-first"],
+  "mockups": ["browser", "app-icon", "readme", "terminal", "social", "badge"],
+  "nav": ["Learn", "Practice", "Daily", "Leaderboard"],
+  "brand_color": "#059669",
+  "tile_color": "#0A0A0A",
+  "greyscale": false,
+  "final": true,
+  "round": 2,
+  "concepts": [
+    {
+      "name": "Mod-7 Grid",
+      "symbol": "daywise-symbol-color.svg",
+      "symbol_on_dark": "daywise-symbol-dark.svg",
+      "symbol_on_tile": "daywise-symbol-dark.svg",
+      "lockup": "daywise-horizontal-color.svg",
+      "lockup_on_dark": "daywise-horizontal-dark.svg",
+      "stacked": "daywise-stacked-color.svg",
+      "avatar": "daywise-symbol-dark.svg",
+      "idea": "Seven modular calendar units (6 rounded tiles + 1 circular Doomsday anchor node) arranged in a 2-3-2 grid forming a D.",
+      "rationale": [
+        "Encodes the 7-day week and modulo-7 arithmetic into a clean geometric D without literal calendar or brain clichés.",
+        "Echoes Daywise's dark dotted-matrix UI and pairs the Emerald anchor node (#34D399 / #059669) with high-contrast monochrome tiles.",
+        "Includes an optically thinned dark-mode cut (daywise-symbol-dark.svg) and a wider-gap small-size cut (daywise-symbol-small.svg) for 16 px favicons."
+      ]
+    }
+  ],
+  "recommendation": "Final approved Mod-7 Grid identity kit for Daywise."
+}
+

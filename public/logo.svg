@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title">
+  <title id="title">Daywise Logo</title>
+  <g id="symbol">
+    <rect x="29" y="29" width="54" height="54" rx="11" fill="#FFFFFF"/>
+    <rect x="101" y="29" width="54" height="54" rx="11" fill="#FFFFFF"/>
+    <rect x="29" y="101" width="54" height="54" rx="11" fill="#FFFFFF"/>
+    <rect x="101" y="101" width="54" height="54" rx="11" fill="#FFFFFF"/>
+    <circle cx="200" cy="128" r="27" fill="#34D399"/>
+    <rect x="29" y="173" width="54" height="54" rx="11" fill="#FFFFFF"/>
+    <rect x="101" y="173" width="54" height="54" rx="11" fill="#FFFFFF"/>
+  </g>
+</svg>
+

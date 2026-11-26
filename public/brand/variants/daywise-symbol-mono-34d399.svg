@@ -1,0 +1,12 @@
+<svg fill="#34d399" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title"><title>Daywise symbol</title>
+  <title id="title">Daywise symbol</title>
+  <g id="symbol">
+    <rect x="28" y="28" width="56" height="56" rx="12" fill="#34d399"/>
+    <rect x="100" y="28" width="56" height="56" rx="12" fill="#34d399"/>
+    <rect x="28" y="100" width="56" height="56" rx="12" fill="#34d399"/>
+    <rect x="100" y="100" width="56" height="56" rx="12" fill="#34d399"/>
+    <circle cx="200" cy="128" r="28" fill="#34d399"/>
+    <rect x="28" y="172" width="56" height="56" rx="12" fill="#34d399"/>
+    <rect x="100" y="172" width="56" height="56" rx="12" fill="#34d399"/>
+  </g>
+</svg>

@@ -63,7 +63,7 @@ export function Navbar() {
         <div className="nav-inner">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-2.5 focus-visible:outline-none group nav-brand-link shrink-0">
-            <img src="/logo.png" className="h-6 w-6 object-contain" alt="Daywise Logo" />
+            <img src="/logo.svg" className="h-6 w-6 object-contain" alt="Daywise Logo" />
             <span className="font-heading font-extrabold tracking-tight text-white group-hover:opacity-90 nav-brand-text">
               Day<span className="text-emerald-400">wise</span>
             </span>
