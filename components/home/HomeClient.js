@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { Fragment, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Container } from "../ui/Container";
 import { Button } from "../ui/Button";
 import { ApolloDemoWidget } from "../game/ApolloDemoWidget";
@@ -66,6 +66,17 @@ const MODULES = [
     href: "/leaderboard",
     label: "View rankings",
   },
+];
+
+// Phrases for the scroll-velocity strip. Each half of the track repeats them enough to cover
+// the widest screens, so the loop never shows an empty gap.
+const VELOCITY_PHRASES = [
+  "Know the day",
+  "Without checking",
+  "Four steps, one habit",
+  "Four places to practice",
+  "Doomsday rule",
+  "Anchor days",
 ];
 
 export function HomeClient() {
@@ -460,14 +471,18 @@ export function HomeClient() {
       {/* Scroll-velocity strip: moves with scroll speed; decorative, so hidden from assistive tech */}
       <div aria-hidden="true" className="overflow-hidden border-b border-hairline-dark py-5 select-none">
         <div data-velocity-track className="flex w-max items-center gap-10 whitespace-nowrap text-sm text-shade-40">
-          {[0, 1].map((dup) =>
-            ["Know the day", "Without checking", "Four steps, one habit", "Four places to practice"].map((label) => (
-              <span key={`${dup}-${label}`} className="flex items-center gap-10">
-                {label}
-                <span className="h-1 w-1 rounded-full bg-white/40" />
-              </span>
-            ))
-          )}
+          {[0, 1].map((dup) => (
+            <Fragment key={dup}>
+              {[0, 1, 2].flatMap((rep) =>
+                VELOCITY_PHRASES.map((label) => (
+                  <span key={`${dup}-${rep}-${label}`} className="flex items-center gap-10">
+                    {label}
+                    <span className="h-1 w-1 rounded-full bg-white/40" />
+                  </span>
+                ))
+              )}
+            </Fragment>
+          ))}
         </div>
       </div>
 
@@ -493,10 +508,12 @@ export function HomeClient() {
                     <span className="text-sm leading-relaxed text-shade-30 sm:col-span-5">{m.desc}</span>
                     <span className="flex items-center gap-2 text-sm text-shade-40 transition-colors duration-200 group-hover:text-white sm:col-span-3 sm:justify-end">
                       {m.label}
-                      <ArrowRight
+                      <span
                         aria-hidden="true"
-                        className="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:translate-x-1"
-                      />
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-white transition-transform duration-300 ease-out group-hover:rotate-45"
+                      >
+                        <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
+                      </span>
                     </span>
                   </Link>
                 </li>
