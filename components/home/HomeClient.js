@@ -156,17 +156,6 @@ export function HomeClient() {
           line.append(sr, visual);
         });
 
-        // Grid parallax: the grid drifts slower than the page, so the sections feel layered.
-        gsap.fromTo(
-          "[data-grid-layer]",
-          { y: 0 },
-          {
-            y: -120,
-            ease: "none",
-            scrollTrigger: { trigger: rootRef.current, start: "top top", end: "bottom bottom", scrub: 0.6 },
-          }
-        );
-
         // The one orchestrated moment: a single page-load sequence.
         gsap
           .timeline({ defaults: { ease: "power3.out" } })
@@ -416,19 +405,6 @@ export function HomeClient() {
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.045] mix-blend-screen"
         style={{ backgroundImage: GRAIN }}
-      />
-      {/* Hairline architectural grid: structure only, faded toward the edges */}
-      <div
-        aria-hidden="true"
-        data-grid-layer
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.055) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.055) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
-          maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, #000 35%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, #000 35%, transparent 100%)",
-        }}
       />
       <div
         aria-hidden="true"
