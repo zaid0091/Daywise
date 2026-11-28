@@ -43,10 +43,18 @@ export function Navbar() {
   }, []);
 
   useGSAP(() => {
+    // Hysteresis: the bar compacts past 80px and expands again only below 24px, so scroll
+    // jitter around a single threshold cannot toggle the state back and forth.
+    const root = document.documentElement;
+    const apply = (y) => {
+      if (!root.classList.contains("scrolled") && y > 80) root.classList.add("scrolled");
+      else if (root.classList.contains("scrolled") && y < 24) root.classList.remove("scrolled");
+    };
+    apply(window.scrollY);
     ScrollTrigger.create({
-      start: "top -40",
-      onEnter: () => document.documentElement.classList.add("scrolled"),
-      onLeaveBack: () => document.documentElement.classList.remove("scrolled"),
+      start: 0,
+      end: "max",
+      onUpdate: (self) => apply(self.scroll()),
     });
   }, { scope: navRef });
 
@@ -78,7 +86,7 @@ export function Navbar() {
           </Link>
 
           {/* Center Nav — desktop only */}
-          <div className="hidden md:flex items-center gap-1 nav-center-pill bg-white/5 border border-white/10 rounded-full">
+          <div className="hidden md:flex items-center gap-1 nav-center-pill bg-white/5 border border-white/10 rounded-xl">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = isLinkActive(item.href);
@@ -88,7 +96,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative flex items-center gap-2 rounded-full font-medium focus-visible:outline-none nav-link-item",
+                    "relative flex items-center gap-2 rounded-lg font-medium focus-visible:outline-none nav-link-item",
                     active
                       ? "text-white bg-white/10 border border-white/15"
                       : "text-shade-40 hover:text-white hover:bg-white/[0.05]"
@@ -110,7 +118,7 @@ export function Navbar() {
           <div className="flex items-center gap-2.5 shrink-0">
             {mounted && profile.streak > 0 && (
               <div
-                className="hidden sm:flex items-center gap-1.5 border border-white/10 rounded-full text-shade-30 text-xs font-mono shrink-0 nav-badge-item"
+                className="hidden sm:flex items-center gap-1.5 border border-white/10 rounded-md text-shade-30 text-xs tabular-nums shrink-0 nav-badge-item"
                 title={`Active Streak: ${profile.streak} Days`}
               >
                 <Flame className="h-3.5 w-3.5 text-shade-30" />
@@ -120,7 +128,7 @@ export function Navbar() {
 
             {mounted && (
               <div
-                className="hidden sm:flex items-center gap-1.5 border border-white/10 rounded-full text-shade-30 text-xs font-mono shrink-0 nav-badge-item"
+                className="hidden sm:flex items-center gap-1.5 border border-white/10 rounded-md text-shade-30 text-xs tabular-nums shrink-0 nav-badge-item"
                 title={`Level ${profile.level} • ${profile.xp.toLocaleString()} XP`}
               >
                 <Award className="h-3.5 w-3.5 text-shade-30" />
@@ -131,7 +139,7 @@ export function Navbar() {
             <Link
               href="/settings"
               className={cn(
-                "flex items-center justify-center rounded-full border border-hairline-dark bg-white/5 text-shade-40 hover:bg-white/10 hover:text-white hover:border-white/20 focus-visible:outline-none cursor-pointer nav-settings-btn",
+                "flex items-center justify-center rounded-xl border border-hairline-dark bg-white/5 text-shade-40 hover:bg-white/10 hover:text-white hover:border-white/20 focus-visible:outline-none cursor-pointer nav-settings-btn",
                 pathname === "/settings" &&
                   "bg-white/15 text-white border-white/30"
               )}
@@ -148,7 +156,7 @@ export function Navbar() {
       <div className="h-[72px]" />
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 block md:hidden border-t border-white/[0.08] bg-black/90 backdrop-blur-2xl px-2 pt-2 pb-[max(0.65rem,env(safe-area-inset-bottom))]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 block md:hidden border-t border-white/[0.08] bg-black px-2 pt-2 pb-[max(0.65rem,env(safe-area-inset-bottom))]">
         <nav className="flex items-center justify-around">
           {[
             ...NAV_ITEMS,
@@ -162,7 +170,7 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-medium transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 select-none",
+                  "flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors duration-200 select-none",
                   active
                     ? "text-white font-semibold"
                     : "text-shade-40 hover:text-white"
@@ -170,7 +178,7 @@ export function Navbar() {
               >
                 <div
                   className={cn(
-                    "p-1.5 rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity]",
+                    "p-1.5 rounded-lg transition-colors",
                     active
                       ? "bg-white/10 text-white"
                       : "bg-transparent text-shade-40"
