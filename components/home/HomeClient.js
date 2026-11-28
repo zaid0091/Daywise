@@ -149,42 +149,6 @@ export function HomeClient() {
     });
 
     // Desktop: the method section pins and the active step follows scroll.
-    mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
-      const ctx = gsap.context(() => {
-        const rows = gsap.utils.toArray("[data-method-row]");
-        const examples = gsap.utils.toArray("[data-method-example]");
-
-        gsap.set(rows, { opacity: 0.3 });
-        gsap.set(rows[0], { opacity: 1 });
-        gsap.set(examples, { opacity: 0, y: 8 });
-        gsap.set(examples[0], { opacity: 1, y: 0 });
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: "[data-method-section]",
-            start: "top top",
-            end: "+=1200",
-            pin: true,
-            scrub: 0.6,
-            anticipatePin: 1,
-          },
-        });
-
-        tl.fromTo("[data-method-progress]", { scaleY: 0 }, { scaleY: 1, ease: "none", duration: rows.length - 1 }, 0);
-
-        for (let i = 1; i < rows.length; i++) {
-          const at = i - 1;
-          tl.to(rows[i - 1], { opacity: 0.3, duration: 0.45, ease: "power2.out" }, at)
-            .to(rows[i], { opacity: 1, duration: 0.45, ease: "power2.out" }, at)
-            .to(examples[i - 1], { opacity: 0, y: -8, duration: 0.3, ease: "power2.in" }, at)
-            .to(examples[i], { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, at + 0.2);
-        }
-      }, rootRef);
-
-      return () => ctx.revert();
-    });
-
-    // Mobile and tablet: the method steps arrive once, in order.
     mm.add("(max-width: 1023px) and (prefers-reduced-motion: no-preference)", () => {
       const ctx = gsap.context(() => {
         gsap.from("[data-method-row]", {
@@ -246,28 +210,6 @@ export function HomeClient() {
             }
           );
         });
-      }, rootRef);
-
-      return () => ctx.revert();
-    });
-
-    // Worked-example panel drifts against scroll, so the page feels layered rather than flat.
-    mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
-      const ctx = gsap.context(() => {
-        gsap.fromTo(
-          "[data-method-panel]",
-          { yPercent: -8 },
-          {
-            yPercent: 8,
-            ease: "none",
-            scrollTrigger: {
-              trigger: "[data-method-section]",
-              start: "top bottom",
-              end: "bottom top",
-              scrub: true,
-            },
-          }
-        );
       }, rootRef);
 
       return () => ctx.revert();
@@ -477,7 +419,7 @@ export function HomeClient() {
       <section data-method-section className="border-b border-hairline-dark py-24 md:py-32">
         <Container className="max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-            <div data-reveal className="flex flex-col gap-6 lg:col-span-5">
+            <div className="flex flex-col gap-6 self-start lg:sticky lg:top-32 lg:col-span-5">
               <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30"><span aria-hidden="true" className="mr-2.5 inline-block h-1.5 w-1.5 bg-white/70" />The method</p>
               <h2 className="display-lg font-heading font-light leading-tight text-balance text-white">
                 Four steps, one habit
@@ -486,33 +428,15 @@ export function HomeClient() {
                 <span data-scrub-text>You do not need a good memory. Any date reduces to four small additions taken mod 7.</span>
               </p>
 
-              <div className="hidden items-stretch gap-4 pt-4 lg:flex">
-                <div className="relative w-px shrink-0 overflow-hidden bg-hairline-dark">
-                  <div data-method-progress className="absolute inset-0 origin-top bg-emerald-400" />
-                </div>
-                <div data-method-panel className="flex min-h-16 flex-1 flex-col justify-center rounded-xl border border-hairline-dark bg-canvas-night-elevated px-5 py-3">
-                  <span className="text-xs text-shade-40">Worked example · July 20, 1969</span>
-                  <div className="relative mt-1 h-6">
-                    {METHOD_STEPS.map((step) => (
-                      <span
-                        key={step.title}
-                        data-method-example
-                        className="absolute inset-0 flex items-center text-sm tabular-nums text-white"
-                      >
-                        {step.example}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+                          </div>
 
-            <ol data-method-list className="divide-y divide-hairline-dark border-t border-hairline-dark lg:col-span-7">
+            <ol data-method-list className="flex flex-col gap-5 lg:col-span-7">
               {METHOD_STEPS.map((step, i) => (
                 <li
                   key={step.title}
                   data-method-row
-                  className="flex flex-col gap-4 py-7 sm:flex-row sm:items-start sm:justify-between"
+                  style={{ top: `${128 + i * 18}px` }}
+                  className="flex flex-col gap-4 rounded-2xl border border-hairline-dark bg-[#0a0a0a] p-7 sm:flex-row sm:items-start sm:justify-between lg:sticky"
                 >
                   <div className="flex items-start gap-5">
                     <span className="pt-1 text-sm tabular-nums text-emerald-400">

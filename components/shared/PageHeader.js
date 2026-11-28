@@ -11,7 +11,7 @@ export function PageHeader({ eyebrow, title, description, action, className, var
       {...props}
     >
       <div className="max-w-2xl space-y-4">
-        {eyebrow && <p className="text-sm text-shade-40">{eyebrow}</p>}
+        {eyebrow && <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30">{eyebrow}</p>}
         <h1 className="display-lg font-heading font-light tracking-tight text-balance text-white">
           {title}
         </h1>
