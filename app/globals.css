@@ -410,6 +410,52 @@ html.scrolled .nav-badge-item {
   height: 18px;
 }
 
+/* ===== View transitions (React ViewTransition, Next.js guide) =====
+   Named shared elements morph between routes. Without browser support, navigation is unchanged. */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+}
+::view-transition-image-pair(.morph) {
+  isolation: isolate;
+}
+/* Directional slides: forward (into a lesson) moves left; back (to the curriculum) moves right. */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -60px;
+  animation: 150ms ease-in both fade reverse, 400ms ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 60px;
+  animation: 210ms ease-out 150ms both fade, 400ms ease-in-out both slide;
+}
+::view-transition-old(.nav-back) {
+  --slide-offset: 60px;
+  animation: 150ms ease-in both fade reverse, 400ms ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -60px;
+  animation: 210ms ease-out 150ms both fade, 400ms ease-in-out both slide;
+}
+@keyframes slide {
+  from { translate: var(--slide-offset); }
+  to { translate: 0; }
+}
+@keyframes fade {
+  from { opacity: 0; filter: blur(3px); }
+  to { opacity: 1; filter: blur(0); }
+}
+/* Keep the page still during the morph; only the named title moves. */
+::view-transition {
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
 /* ===== Lenis Smooth Scroll Configuration ===== */
 html.lenis,
 html.lenis body {

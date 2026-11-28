@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { ScrambleText } from "../shared/ScrambleText";
+import { CountUp } from "../shared/CountUp";
 import { Trophy, Award, Sparkles, Medal, ShieldAlert } from "lucide-react";
 import { Container } from "../ui/Container";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/Card";
@@ -73,7 +75,7 @@ export default function LeaderboardClient() {
       <div className="flex flex-col items-center gap-3 border-b border-hairline-dark py-8 md:py-10 mb-8 text-center">
         <SectionBadge variant="emerald">Local Trainee Standings</SectionBadge>
         <h1 className="display-md text-white font-light leading-none tracking-tight font-heading">
-          Practice Leaderboard
+          <ScrambleText>Practice Leaderboard</ScrambleText>
         </h1>
         <p className="text-base text-shade-40 max-w-xl mx-auto">
           Review your mental calculation progress and local rank compared to sample benchmarks. This leaderboard operates entirely offline.
@@ -161,13 +163,13 @@ export default function LeaderboardClient() {
                 You are currently ranked <strong className="text-white font-bold">#{userRankIndex}</strong> on your local training simulator.
               </p>
               <div className="space-y-2 pt-2 border-t border-hairline-dark">
-                <div className="flex justify-between">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
                   <span>Your Rank:</span>
                   <span className="font-semibold text-white">#{userRankIndex} of {sortedPlayers.length}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
                   <span>Your Total XP:</span>
-                  <span className="font-semibold text-white">{profile.xp.toLocaleString()} XP</span>
+                  <CountUp value={profile.xp} duration={1.6} suffix=" XP" className="font-semibold text-white" />
                 </div>
               </div>
             </CardContent>

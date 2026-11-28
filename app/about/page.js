@@ -92,7 +92,8 @@ export default function AboutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <table className="w-full text-xs sm:text-sm text-left font-mono">
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[360px] text-xs sm:text-sm text-left font-mono">
                   <thead>
                     <tr className="bg-white/5 border-b border-hairline-dark text-white text-[10px] ">
                       <th className="py-3 px-4 sm:px-6 font-semibold">Months</th>
@@ -126,6 +127,7 @@ export default function AboutPage() {
                     </tr>
                   </tbody>
                 </table>
+                </div>
               </CardContent>
             </Card>
           </div>

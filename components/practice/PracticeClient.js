@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, ViewTransition } from "react";
+import gsap from "gsap";
+import { ScrambleText } from "../shared/ScrambleText";
 import Link from "next/link";
 import { Zap, Timer, CheckCircle, ArrowRight, Gauge, Brain } from "lucide-react";
 import { Container } from "../ui/Container";
@@ -51,6 +53,51 @@ const MODES = [
 export default function PracticeClient() {
   const [difficulty, setDifficulty] = useState("medium");
   const mounted = useMounted();
+  const gridRef = useRef(null);
+
+  // Pointer tilt for the mode cards: each card leans toward the cursor and lifts slightly.
+  // Only with a fine pointer (mouse) and motion allowed. Runs after mount, once the cards exist.
+  useEffect(() => {
+    if (!mounted || !gridRef.current) return;
+    const mm = gsap.matchMedia();
+    const cleanups = [];
+
+    mm.add("(pointer: fine) and (prefers-reduced-motion: no-preference)", () => {
+      gsap.utils.toArray("[data-tilt]", gridRef.current).forEach((card) => {
+        gsap.set(card, { transformPerspective: 900, transformOrigin: "50% 50%" });
+        const rx = gsap.quickTo(card, "rotationX", { duration: 0.6, ease: "power3.out" });
+        const ry = gsap.quickTo(card, "rotationY", { duration: 0.6, ease: "power3.out" });
+        const lift = gsap.quickTo(card, "y", { duration: 0.6, ease: "power3.out" });
+
+        const onMove = (e) => {
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          rx(-py * 6);
+          ry(px * 8);
+          lift(-4);
+        };
+        const onLeave = () => {
+          rx(0);
+          ry(0);
+          lift(0);
+        };
+
+        card.addEventListener("pointermove", onMove);
+        card.addEventListener("pointerleave", onLeave);
+        cleanups.push(() => {
+          card.removeEventListener("pointermove", onMove);
+          card.removeEventListener("pointerleave", onLeave);
+          gsap.set(card, { clearProps: "transform" });
+        });
+      });
+    });
+
+    return () => {
+      cleanups.forEach((fn) => fn());
+      mm.revert();
+    };
+  }, [mounted]);
 
   if (!mounted) {
     return (
@@ -67,7 +114,7 @@ export default function PracticeClient() {
       {/* Page Header */}
       <header className="mb-10 flex flex-col gap-4 border-b border-hairline-dark pb-10 pt-8 md:pb-12 md:pt-12">
         <h1 className="display-lg font-heading font-light tracking-tight text-balance text-white">
-          Practice arenas
+          <ScrambleText>Practice arenas</ScrambleText>
         </h1>
         <p className="max-w-prose text-base leading-relaxed text-shade-40">
           Choose a training mode to build your Doomsday mental calculation speed, streaks, or test under time pressure.
@@ -119,14 +166,15 @@ export default function PracticeClient() {
       </div>
 
       {/* Grid of modes */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {MODES.map((mode) => {
           const Icon = mode.icon;
           return (
             <Card
               key={mode.id}
+              data-tilt
               className={cn(
-                "flex flex-col h-full bg-canvas-night-elevated border border-hairline-dark transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 rounded-2xl relative overflow-hidden group",
+                "flex flex-col h-full bg-canvas-night-elevated border border-hairline-dark transition-[background-color,border-color] duration-300 rounded-2xl relative overflow-hidden group",
                 mode.cardBorder
               )}
             >
@@ -134,7 +182,9 @@ export default function PracticeClient() {
                 <div className={cn("p-3 w-12 h-12 rounded-2xl border flex items-center justify-center mb-4 transition-transform group-hover:scale-110", mode.iconBg)}>
                   <Icon className="h-6 w-6" />
                 </div>
-                <CardTitle className="text-xl font-bold text-white">{mode.title}</CardTitle>
+                <ViewTransition name={`mode-title-${mode.id}`} share="morph" default="none">
+                  <CardTitle className="text-xl font-bold text-white">{mode.title}</CardTitle>
+                </ViewTransition>
                 <CardDescription className="text-sm text-shade-40 mt-2 min-h-[80px] leading-relaxed">
                   {mode.description}
                 </CardDescription>
@@ -144,6 +194,7 @@ export default function PracticeClient() {
                 <Button asChild variant="outline-on-dark" className="w-full cursor-pointer hover:border-white/40">
                   <Link
                     href={`${mode.href}?diff=${difficulty}`}
+                    transitionTypes={["nav-forward"]}
                     className="flex items-center justify-center gap-1.5"
                   >
                     Launch Arena <ArrowRight className="h-4 w-4" />

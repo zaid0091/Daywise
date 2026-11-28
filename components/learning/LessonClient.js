@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ViewTransition } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle2, XCircle, RefreshCw, Award, HelpCircle } from "lucide-react";
@@ -81,7 +81,7 @@ export function LessonClient({ lessonId }) {
     switch (lesson.id) {
       case "the-idea":
         return (
-          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 text-center mt-5">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center mt-5">
             {[
               { name: "Sun", code: 0 },
               { name: "Mon", code: 1 },
@@ -112,7 +112,7 @@ export function LessonClient({ lessonId }) {
         );
       case "century-anchors":
         return (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-6 text-center">
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-4 gap-3.5 mt-6 text-center">
             {[
               { range: "1800s", day: "Friday", code: 5 },
               { range: "1900s", day: "Wednesday", code: 3 },
@@ -140,10 +140,10 @@ export function LessonClient({ lessonId }) {
         return (
           <div className="border border-hairline-dark bg-black/60 p-4 rounded-xl text-xs space-y-2.5 mt-5">
             <p className="font-semibold text-white border-b border-hairline-dark/60 pb-1.5">Conway Formula Steps:</p>
-            <p className="flex justify-between text-shade-40"><span>Step A: Y / 12</span> <span className="text-white font-bold">12s division</span></p>
-            <p className="flex justify-between text-shade-40"><span>Step B: Y % 12</span> <span className="text-white font-bold">Remainder</span></p>
-            <p className="flex justify-between text-shade-40"><span>Step C: Remainder / 4</span> <span className="text-white font-bold">Leap years count</span></p>
-            <p className="flex justify-between border-t border-hairline-dark pt-1.5 font-bold text-white"><span>Offset: (A + B + C) % 7</span> <span>Shift days</span></p>
+            <p className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-shade-40"><span>Step A: Y / 12</span> <span className="text-white font-bold">12s division</span></p>
+            <p className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-shade-40"><span>Step B: Y % 12</span> <span className="text-white font-bold">Remainder</span></p>
+            <p className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-shade-40"><span>Step C: Remainder / 4</span> <span className="text-white font-bold">Leap years count</span></p>
+            <p className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-t border-hairline-dark pt-1.5 font-bold text-white"><span>Offset: (A + B + C) % 7</span> <span>Shift days</span></p>
           </div>
         );
       case "month-anchors":
@@ -176,7 +176,7 @@ export function LessonClient({ lessonId }) {
         );
       case "leap-years":
         return (
-          <div className="grid grid-cols-2 gap-3 text-center mt-5 text-xs">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3 text-center mt-5 text-xs">
             <div className="border border-hairline-dark p-3.5 rounded-xl bg-black/60 text-shade-40">
               <span className="font-semibold block text-white">Common Year</span>
               <p className="mt-1">Jan anchor: <strong className="text-white">3rd</strong></p>
@@ -193,9 +193,9 @@ export function LessonClient({ lessonId }) {
         return (
           <div className="border border-hairline-dark bg-black/60 p-4 rounded-xl text-xs mt-5 space-y-1.5 text-shade-40">
             <p className="font-semibold text-white">Modulo 7 subtraction shortcuts:</p>
-            <p className="flex justify-between"><span>+6 days shift</span> <span className="text-white">&rarr; &minus;1 day</span></p>
-            <p className="flex justify-between"><span>+5 days shift</span> <span className="text-white">&rarr; &minus;2 days</span></p>
-            <p className="flex justify-between"><span>+4 days shift</span> <span className="text-white">&rarr; &minus;3 days</span></p>
+            <p className="flex flex-wrap justify-between gap-x-3 gap-y-1"><span>+6 days shift</span> <span className="text-white">&rarr; &minus;1 day</span></p>
+            <p className="flex flex-wrap justify-between gap-x-3 gap-y-1"><span>+5 days shift</span> <span className="text-white">&rarr; &minus;2 days</span></p>
+            <p className="flex flex-wrap justify-between gap-x-3 gap-y-1"><span>+4 days shift</span> <span className="text-white">&rarr; &minus;3 days</span></p>
           </div>
         );
       case "mental-shortcuts":
@@ -222,11 +222,17 @@ export function LessonClient({ lessonId }) {
   if (!mounted) return null;
 
   return (
+    <ViewTransition
+      enter={{ "nav-forward": "nav-forward", "nav-back": "nav-back", default: "none" }}
+      exit={{ "nav-forward": "nav-forward", "nav-back": "nav-back", default: "none" }}
+      default="none"
+    >
     <Container className="py-8 max-w-3xl bg-black text-white">
       {/* Backlink and Title */}
       <div className="mb-6">
         <Link
           href="/learn"
+          transitionTypes={["nav-back"]}
           className="inline-flex items-center gap-1.5 text-xs text-shade-40 hover:text-white transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Curriculum
@@ -235,9 +241,11 @@ export function LessonClient({ lessonId }) {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-4">
           <div>
             <span className="text-sm text-shade-40">Lesson {lessonId}</span>
-            <h1 className="display-md mt-1 font-heading font-light text-white">
-              {lesson.title}
-            </h1>
+            <ViewTransition name={`lesson-title-${lessonId}`} share="morph" default="none">
+              <h1 className="display-md mt-1 font-heading font-light text-white">
+                {lesson.title}
+              </h1>
+            </ViewTransition>
           </div>
           <span className="text-sm tabular-nums text-shade-40" aria-live="polite">
             Step {currentSlide + 1} of {totalSteps}
@@ -351,7 +359,7 @@ export function LessonClient({ lessonId }) {
         </AnimatePresence>
 
         {/* Lower navigation action row */}
-        <div className="flex justify-between items-center mt-8 pt-5 border-t border-hairline-dark/60">
+        <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 items-center mt-8 pt-5 border-t border-hairline-dark/60">
           <Button
             variant="outline-on-dark"
             size="sm"
@@ -418,5 +426,6 @@ export function LessonClient({ lessonId }) {
         </motion.div>
       )}
     </Container>
+    </ViewTransition>
   );
 }

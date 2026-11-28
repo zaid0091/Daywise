@@ -16,7 +16,30 @@ import { BarChart3, LineChart as LineIcon, Award } from "lucide-react";
 import { useProfileStore } from "../../stores/profileStore";
 import { useMounted } from "../../lib/shared/useMounted";
 
+// True once the element has entered the viewport; stays true (the draw plays once).
+function useFirstInView(ref) {
+  const [seen, setSeen] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || seen) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, seen]);
+  return seen;
+}
+
 export function StatsCharts() {
+  const chartsRef = React.useRef(null);
+  const chartsInView = useFirstInView(chartsRef);
   const mounted = useMounted();
   const profile = useProfileStore();
 
@@ -60,7 +83,7 @@ export function StatsCharts() {
   }));
 
   return (
-    <div className="grid md:grid-cols-2 gap-5 w-full">
+    <div ref={chartsRef} className="grid md:grid-cols-2 gap-5 w-full">
       {/* 1. Score History Chart */}
       <div className="border border-hairline-dark bg-canvas-night-elevated p-6 rounded-2xl space-y-4">
         <h3 className="text-xs font-bold text-zinc-600 dark:text-zinc-400  flex items-center gap-2">
@@ -89,6 +112,9 @@ export function StatsCharts() {
                 strokeWidth={2.5}
                 dot={{ fill: "#ffffff", strokeWidth: 2, r: 3 }}
                 activeDot={{ r: 5, fill: "#ffffff" }}
+                isAnimationActive={chartsInView}
+                animationDuration={1400}
+                animationEasing="ease-out"
               />
             </LineChart>
           </ResponsiveContainer>
@@ -116,7 +142,15 @@ export function StatsCharts() {
                   boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
                 }}
               />
-              <Bar dataKey="accuracy" fill="#c1fbd4" radius={[6, 6, 0, 0]} maxBarSize={20} />
+              <Bar
+                dataKey="accuracy"
+                fill="#c1fbd4"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={20}
+                isAnimationActive={chartsInView}
+                animationDuration={1100}
+                animationEasing="ease-out"
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>

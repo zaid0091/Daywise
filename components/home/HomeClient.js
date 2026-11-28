@@ -433,8 +433,8 @@ export function HomeClient() {
         <Container className="relative z-10 max-w-7xl py-20 md:py-28 lg:py-32">
           <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-12">
             <div className="flex flex-col items-start gap-7 lg:col-span-6">
-              <p data-hero-eyebrow className="text-sm text-shade-40">
-                Conway’s Doomsday Rule
+              <p data-hero-eyebrow className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30">
+                <span aria-hidden="true" className="mr-2.5 inline-block h-1.5 w-1.5 bg-white/70" />Conway’s Doomsday Rule
               </p>
 
               <h1 className="display-xl font-heading font-light leading-[1.02] text-balance text-white">
@@ -450,7 +450,7 @@ export function HomeClient() {
                 </span>
               </h1>
 
-              <p data-hero-copy className="max-w-prose text-base leading-relaxed text-shade-40 sm:text-lg">
+              <p data-hero-copy className="max-w-prose text-base leading-relaxed text-shade-30 sm:text-lg">
                 Work out the weekday of any date in history in your head, in seconds, using John Conway’s anchor-day method.
               </p>
 
@@ -478,11 +478,11 @@ export function HomeClient() {
         <Container className="max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div data-reveal className="flex flex-col gap-6 lg:col-span-5">
-              <p className="text-sm text-shade-40">The method</p>
+              <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30"><span aria-hidden="true" className="mr-2.5 inline-block h-1.5 w-1.5 bg-white/70" />The method</p>
               <h2 className="display-lg font-heading font-light leading-tight text-balance text-white">
                 Four steps, one habit
               </h2>
-              <p className="max-w-md text-base leading-relaxed text-shade-40" data-scrub-para>
+              <p className="max-w-md text-base leading-relaxed text-shade-30" data-scrub-para>
                 <span data-scrub-text>You do not need a good memory. Any date reduces to four small additions taken mod 7.</span>
               </p>
 
@@ -515,12 +515,12 @@ export function HomeClient() {
                   className="flex flex-col gap-4 py-7 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div className="flex items-start gap-5">
-                    <span className="pt-1 text-sm tabular-nums text-shade-40">
+                    <span className="pt-1 text-sm tabular-nums text-emerald-400">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <div className="space-y-1.5">
                       <h3 className="font-heading text-lg text-white">{step.title}</h3>
-                      <p className="max-w-md text-sm leading-relaxed text-shade-40">{step.desc}</p>
+                      <p className="max-w-md text-sm leading-relaxed text-shade-30">{step.desc}</p>
                     </div>
                   </div>
                   <code className="shrink-0 self-start rounded-lg border border-hairline-dark bg-canvas-night-elevated px-3 py-1.5 text-xs tabular-nums text-shade-30">
@@ -552,7 +552,7 @@ export function HomeClient() {
         <Container className="max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div data-reveal className="space-y-4 lg:col-span-4">
-              <p className="text-sm text-shade-40">Train</p>
+              <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30"><span aria-hidden="true" className="mr-2.5 inline-block h-1.5 w-1.5 bg-white/70" />Train</p>
               <h2 className="display-lg font-heading font-light leading-tight text-balance text-white">
                 Four places to practice
               </h2>
@@ -566,7 +566,7 @@ export function HomeClient() {
                     className="group grid grid-cols-1 gap-2 px-1 py-7 transition-colors duration-200 hover:bg-white/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:grid-cols-12 sm:items-baseline sm:gap-6"
                   >
                     <span className="font-heading text-xl text-white sm:col-span-4">{m.title}</span>
-                    <span className="text-sm leading-relaxed text-shade-40 sm:col-span-5">{m.desc}</span>
+                    <span className="text-sm leading-relaxed text-shade-30 sm:col-span-5">{m.desc}</span>
                     <span className="flex items-center gap-2 text-sm text-shade-40 transition-colors duration-200 group-hover:text-white sm:col-span-3 sm:justify-end">
                       {m.label}
                       <ArrowRight

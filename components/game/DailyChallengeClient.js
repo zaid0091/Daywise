@@ -152,23 +152,23 @@ export default function DailyChallengeClient() {
                 <CardTitle className="text-base font-bold text-white">Your Scoreboard</CardTitle>
               </CardHeader>
               <CardContent className="p-6 pt-0 space-y-4 text-sm leading-relaxed text-shade-40 text-left">
-                <div className="flex justify-between border-b border-hairline-dark/40 pb-2">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/40 pb-2">
                   <span>Score:</span>
                   <strong className="text-white font-mono">{todayAttempt.score.toLocaleString()} pts</strong>
                 </div>
-                <div className="flex justify-between border-b border-hairline-dark/40 pb-2">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/40 pb-2">
                   <span>Accuracy:</span>
                   <strong className="text-white font-mono">{todayAttempt.accuracy}%</strong>
                 </div>
-                <div className="flex justify-between border-b border-hairline-dark/40 pb-2">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/40 pb-2">
                   <span>Total Time:</span>
                   <strong className="text-white font-mono">{todayAttempt.elapsedTime}s</strong>
                 </div>
-                <div className="flex justify-between border-b border-hairline-dark/40 pb-2">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/40 pb-2">
                   <span>XP Gained:</span>
                   <strong className="text-white font-mono font-bold">+150 XP</strong>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
                   <span>Solve Streak:</span>
                   <strong className="text-white flex items-center gap-1 font-mono">
                     <Flame className="h-4 w-4 text-orange-500 fill-orange-500/10" />
@@ -246,18 +246,18 @@ export default function DailyChallengeClient() {
                 <CardDescription className="text-xs text-shade-40">Your personal highest score in Daily Challenge.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 pt-0 space-y-4 text-sm leading-relaxed text-shade-40 text-left">
-                <div className="flex justify-between border-b border-hairline-dark/40 pb-2">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/40 pb-2">
                   <span>Record High Score:</span>
                   <strong className="text-white font-mono">{dailyStore.bestDailyScore.toLocaleString()} pts</strong>
                 </div>
-                <div className="flex justify-between border-b border-hairline-dark/40 pb-2">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/40 pb-2">
                   <span>Active Streak:</span>
                   <strong className="text-white flex items-center gap-1 font-mono">
                     <Flame className="h-4 w-4 text-orange-500 fill-orange-500/10" />
                     {profileStore.streak} Days
                   </strong>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
                   <span>Lesson Progress:</span>
                   <strong className="text-white">Lvl {profileStore.level}</strong>
                 </div>

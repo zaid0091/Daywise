@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { ScrambleText } from "../shared/ScrambleText";
 import {
   ShieldAlert,
   RotateCcw,
@@ -91,7 +92,7 @@ export default function SettingsClient() {
       <div className="flex flex-col items-center gap-3 border-b border-hairline-dark py-8 md:py-10 mb-8 text-center">
         <SectionBadge variant="emerald">Preferences</SectionBadge>
         <h1 className="display-md text-white font-light leading-none tracking-tight font-heading">
-          Settings
+          <ScrambleText>Settings</ScrambleText>
         </h1>
         <p className="text-base text-shade-40 max-w-xl mx-auto">
           Configure your Daywise training environment, user identity details, audio logs, and accessibility preferences.
@@ -197,7 +198,7 @@ export default function SettingsClient() {
             <CardDescription className="text-xs text-shade-40">Configure sound chimes and feedback.</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="flex items-center justify-between p-2">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 p-2">
               <div>
                 <span className="font-semibold text-sm block text-white">Sound Effects</span>
                 <span className="text-xs text-shade-40 block">Play synthetic audio beeps on success, error, and level-ups.</span>
@@ -221,7 +222,7 @@ export default function SettingsClient() {
             <CardDescription className="text-xs text-shade-40">Manage user assistance options.</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0">
-            <div className="flex items-center justify-between p-2">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 p-2">
               <div>
                 <span className="font-semibold text-sm block text-white">Reduced Motion</span>
                 <span className="text-xs text-shade-40 block">Suppress slide-in effects and transition durations.</span>
@@ -245,25 +246,25 @@ export default function SettingsClient() {
             <CardDescription className="text-xs text-shade-40">Quick discoverable desktop training hotkeys.</CardDescription>
           </CardHeader>
           <CardContent className="p-6 pt-0 space-y-3.5 font-sans text-xs text-shade-40">
-            <div className="flex items-center justify-between border-b border-hairline-dark/50 pb-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/50 pb-2.5">
               <span>Choose Weekday Answers:</span>
               <kbd className="bg-white/10 border border-white/10 px-2.5 py-1 rounded font-mono text-[10px] text-white font-bold">
                 1 - 7
               </kbd>
             </div>
-            <div className="flex items-center justify-between border-b border-hairline-dark/50 pb-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/50 pb-2.5">
               <span>Advance to next card on incorrect explanations:</span>
               <kbd className="bg-white/10 border border-white/10 px-2.5 py-1 rounded font-mono text-[10px] text-white font-bold">
                 Enter
               </kbd>
             </div>
-            <div className="flex items-center justify-between border-b border-hairline-dark/50 pb-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-hairline-dark/50 pb-2.5">
               <span>Start challenge sequences:</span>
               <kbd className="bg-white/10 border border-white/10 px-2.5 py-1 rounded font-mono text-[10px] text-white font-bold">
                 Space / Enter
               </kbd>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <span>Quit / reset active training arena:</span>
               <kbd className="bg-white/10 border border-white/10 px-2.5 py-1 rounded font-mono text-[10px] text-white font-bold">
                 Escape

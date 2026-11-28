@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, ViewTransition } from "react";
+import gsap from "gsap";
 import Link from "next/link";
 import { CheckCircle2, Lock, ArrowRight, Clock } from "lucide-react";
+import { ScrambleText } from "../shared/ScrambleText";
+import { CountUp } from "../shared/CountUp";
 import { Container } from "../ui/Container";
 import { Card, CardHeader, CardTitle, CardDescription } from "../ui/Card";
 import { Button } from "../ui/Button";
@@ -31,6 +34,27 @@ export function LearnClient() {
     return completedList.includes(prevLesson.id);
   };
 
+  // Progress ring: draws from empty to the current progress. Skipped for reduced motion,
+  // where the ring is already drawn at its final value by the markup.
+  const ringRef = useRef(null);
+  useEffect(() => {
+    const ring = ringRef.current;
+    if (!mounted || !ring) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const state = { p: 0 };
+    const tween = gsap.to(state, {
+      p: progressPercent,
+      duration: 1.2,
+      ease: "power3.out",
+      onUpdate: () => {
+        const v = state.p * 2.64;
+        ring.setAttribute("stroke-dasharray", `${v} ${264 - v}`);
+      },
+    });
+    return () => tween.kill();
+  }, [mounted, progressPercent]);
+
   if (!mounted) {
     return (
       <Container className="py-12">
@@ -49,7 +73,7 @@ export function LearnClient() {
       <header className="mb-10 flex flex-col gap-4 border-b border-hairline-dark pb-10 pt-8 md:pb-12 md:pt-12">
         <p className="text-sm text-shade-40">Curriculum</p>
         <h1 className="display-lg font-heading font-light tracking-tight text-balance text-white">
-          Learn the method
+          <ScrambleText>Learn the method</ScrambleText>
         </h1>
         <p className="max-w-prose text-base leading-relaxed text-shade-40">
           Conway&apos;s Doomsday Rule, one lesson at a time: from the idea itself to fast mental arithmetic.
@@ -64,9 +88,9 @@ export function LearnClient() {
           <div className="lg:sticky lg:top-28 space-y-6">
             {/* Progress Card */}
             <div className="rounded-2xl border border-hairline-dark bg-canvas-night-elevated p-6 space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <span className="text-sm text-shade-40">Progress</span>
-                <span className="text-3xl font-heading font-light text-white tabular-nums">{progressPercent}%</span>
+                <CountUp value={progressPercent} suffix="%" duration={1.2} className="text-3xl font-heading font-light text-white tabular-nums" />
               </div>
 
               {/* Circular-style progress ring */}
@@ -80,7 +104,7 @@ export function LearnClient() {
                       strokeWidth="6"
                       strokeLinecap="round"
                       strokeDasharray={`${progressPercent * 2.64} ${264 - progressPercent * 2.64}`}
-                      className="text-white transition-[stroke-dasharray] duration-700 ease-out"
+                      ref={ringRef} className="text-white transition-[stroke-dasharray] duration-700 ease-out"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -117,6 +141,7 @@ export function LearnClient() {
             {currentLessonIndex >= 0 && (
               <Link
                 href={`/learn/${LESSONS[currentLessonIndex].id}`}
+                transitionTypes={["nav-forward"]}
                 className="group block rounded-xl border border-hairline-dark bg-canvas-night-elevated p-5 transition-[border-color,background-color] duration-200 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <div className="mb-2 text-xs text-shade-40">Continue</div>
@@ -200,9 +225,11 @@ export function LearnClient() {
                             </span>
                           </div>
 
-                          <CardTitle className="font-heading text-base font-normal leading-snug text-white sm:text-lg">
-                            {lesson.title}
-                          </CardTitle>
+                          <ViewTransition name={`lesson-title-${lesson.id}`} share="morph" default="none">
+                            <CardTitle className="font-heading text-base font-normal leading-snug text-white sm:text-lg">
+                              {lesson.title}
+                            </CardTitle>
+                          </ViewTransition>
                           <CardDescription className="mt-1 line-clamp-2 text-sm leading-relaxed text-shade-40">
                             {lesson.description}
                           </CardDescription>
@@ -219,7 +246,7 @@ export function LearnClient() {
                             isCurrent && ""
                           )}
                         >
-                          <Link href={`/learn/${lesson.id}`} className="flex items-center gap-1.5">
+                          <Link href={`/learn/${lesson.id}`} transitionTypes={["nav-forward"]} className="flex items-center gap-1.5">
                             {completed ? "Review" : "Start"} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                           </Link>
                         </Button>

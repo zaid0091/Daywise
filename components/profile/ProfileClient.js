@@ -24,6 +24,7 @@ import { getLevelProgress } from "../../lib/game/levels";
 import { StatsCharts } from "../charts/StatsCharts";
 import { ACHIEVEMENTS } from "../../data/achievements";
 import { cn } from "../../lib/utils";
+import { CountUp } from "../shared/CountUp";
 
 const AVATAR_OPTIONS = [
   { id: "brain", label: "Calculator", icon: Brain },
@@ -172,11 +173,11 @@ export default function ProfileClient() {
         <div className="flex items-center gap-6 bg-canvas-night-elevated p-4 rounded-2xl border border-hairline-dark shrink-0">
           <div className="text-center px-4 border-r border-hairline-dark">
             <span className="text-[10px] text-shade-40 font-bold block font-mono">Level</span>
-            <span className="font-heading text-2xl font-bold text-indigo-300">{profile.level}</span>
+            <CountUp value={profile.level} duration={0.9} className="font-heading text-2xl font-bold text-indigo-300" />
           </div>
           <div className="text-center px-4">
             <span className="text-[10px] text-shade-40 font-bold block font-mono">Total XP</span>
-            <span className="font-heading text-2xl font-bold text-emerald-300">{NUMBER.format(profile.xp)} XP</span>
+            <CountUp value={profile.xp} duration={1.6} suffix=" XP" className="font-heading text-2xl font-bold text-emerald-300" />
           </div>
         </div>
       </div>
@@ -216,7 +217,7 @@ export default function ProfileClient() {
       {/* Level XP Progress Bar */}
       <Card className="mb-8 border border-hairline-dark bg-canvas-night-elevated rounded-2xl">
         <CardContent className="p-6 space-y-3 text-left">
-          <div className="flex justify-between text-xs font-bold text-white font-mono">
+          <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs font-bold text-white font-mono">
             <span>Level {level} Progress</span>
             <span className="text-indigo-300">{xpInCurrentLevel} / {xpNeededForNextLevel} XP</span>
           </div>

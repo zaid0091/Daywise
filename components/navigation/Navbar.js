@@ -50,13 +50,76 @@ export function Navbar() {
       if (!root.classList.contains("scrolled") && y > 80) root.classList.add("scrolled");
       else if (root.classList.contains("scrolled") && y < 24) root.classList.remove("scrolled");
     };
+    // Read the real scroll position on every scroll event, so the state does not depend on
+    // ScrollTrigger's measured positions (those go stale when pages mount content later).
+    const onScroll = () => apply(window.scrollY);
     apply(window.scrollY);
-    ScrollTrigger.create({
-      start: 0,
-      end: "max",
-      onUpdate: (self) => apply(self.scroll()),
+    window.addEventListener("scroll", onScroll, { passive: true });
+    // Magnetic pull on desktop links and the settings button. Fine pointers only; motion allowed.
+    const mm = gsap.matchMedia();
+    mm.add("(pointer: fine) and (prefers-reduced-motion: no-preference)", () => {
+      const cleanups = [];
+      gsap.utils.toArray("[data-nav-magnetic]", navRef.current).forEach((el) => {
+        const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: "elastic.out(1, 0.5)" });
+        const yTo = gsap.quickTo(el, "y", { duration: 0.5, ease: "elastic.out(1, 0.5)" });
+        const onMove = (e) => {
+          const r = el.getBoundingClientRect();
+          xTo((e.clientX - r.left - r.width / 2) * 0.2);
+          yTo((e.clientY - r.top - r.height / 2) * 0.2);
+        };
+        const onLeave = () => {
+          xTo(0);
+          yTo(0);
+        };
+        el.addEventListener("pointermove", onMove);
+        el.addEventListener("pointerleave", onLeave);
+        cleanups.push(() => {
+          el.removeEventListener("pointermove", onMove);
+          el.removeEventListener("pointerleave", onLeave);
+          gsap.set(el, { clearProps: "transform" });
+        });
+      });
+      return () => cleanups.forEach((fn) => fn());
     });
+    return () => window.removeEventListener("scroll", onScroll);
   }, { scope: navRef });
+
+  // Sliding indicator: glides to the active link on route change; jumps on resize.
+  const pillRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const placedOnce = useRef(false);
+  useEffect(() => {
+    const pill = pillRef.current;
+    const ind = indicatorRef.current;
+    if (!pill || !ind) return;
+
+    const place = (animate) => {
+      const active = pill.querySelector('[aria-current="page"]');
+      if (!active) {
+        gsap.to(ind, { opacity: 0, duration: 0.2 });
+        return;
+      }
+      const pr = pill.getBoundingClientRect();
+      const ar = active.getBoundingClientRect();
+      const to = {
+        x: ar.left - pr.left - pill.clientLeft,
+        y: ar.top - pr.top - pill.clientTop,
+        width: ar.width,
+        height: ar.height,
+        opacity: 1,
+      };
+      if (animate) gsap.to(ind, { ...to, duration: 0.65, ease: "expo.out" });
+      else gsap.set(ind, to);
+    };
+
+    // First placement jumps into position; later route changes glide from the previous link.
+    place(placedOnce.current);
+    placedOnce.current = true;
+
+    const onResize = () => place(false);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [pathname]);
 
   const isLinkActive = (href) => {
     if (href === "/") return pathname === "/";
@@ -86,7 +149,12 @@ export function Navbar() {
           </Link>
 
           {/* Center Nav — desktop only */}
-          <div className="hidden md:flex items-center gap-1 nav-center-pill bg-white/5 border border-white/10 rounded-xl">
+          <div ref={pillRef} className="relative hidden md:flex items-center gap-1 nav-center-pill bg-white/5 border border-white/10 rounded-xl">
+            <div
+              ref={indicatorRef}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-0 top-0 rounded-lg border border-white/15 bg-white/10 opacity-0"
+            />
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = isLinkActive(item.href);
@@ -95,10 +163,12 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-nav-magnetic
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative flex items-center gap-2 rounded-lg font-medium focus-visible:outline-none nav-link-item",
                     active
-                      ? "text-white bg-white/10 border border-white/15"
+                      ? "text-white"
                       : "text-shade-40 hover:text-white hover:bg-white/[0.05]"
                   )}
                 >
@@ -138,6 +208,7 @@ export function Navbar() {
 
             <Link
               href="/settings"
+              data-nav-magnetic
               className={cn(
                 "flex items-center justify-center rounded-xl border border-hairline-dark bg-white/5 text-shade-40 hover:bg-white/10 hover:text-white hover:border-white/20 focus-visible:outline-none cursor-pointer nav-settings-btn",
                 pathname === "/settings" &&

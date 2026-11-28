@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, ViewTransition } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
 import {
   ArrowLeft,
   ArrowRight,
@@ -187,6 +188,27 @@ export function GameClient({ mode: initialMode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleChoice]);
 
+  // Answer feedback: a wrong pick shakes the chosen button; a correct one springs up once.
+  // Runs only when an answer is recorded, and is skipped for reduced motion.
+  const answerGridRef = useRef(null);
+  useEffect(() => {
+    if (!store.currentAnswer || !answerGridRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const chosen = answerGridRef.current.querySelector('[data-selected="true"]');
+    if (!chosen) return;
+
+    const tween = store.currentAnswer.isCorrect
+      ? gsap.fromTo(chosen, { scale: 0.9 }, { scale: 1, duration: 0.55, ease: "back.out(2.2)", clearProps: "transform" })
+      : gsap.fromTo(
+          chosen,
+          { x: 0 },
+          { x: 0, keyframes: [{ x: -8 }, { x: 8 }, { x: -6 }, { x: 6 }, { x: 0 }], duration: 0.45, ease: "power1.inOut", clearProps: "transform" }
+        );
+
+    return () => tween.kill();
+  }, [store.currentAnswer]);
+
   const handleStart = () => {
     if (initialMode === "daily") {
       const todayStr = getLocalDateString();
@@ -212,6 +234,7 @@ export function GameClient({ mode: initialMode }) {
         <div className="mb-6">
           <Link
             href="/practice"
+            transitionTypes={["nav-back"]}
             className="inline-flex items-center gap-2 text-sm text-shade-40 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Arenas
@@ -225,9 +248,11 @@ export function GameClient({ mode: initialMode }) {
                 <Play className="h-8 w-8 fill-white" />
               </span>
             </div>
-            <CardTitle className="text-3xl md:text-4xl font-bold capitalize text-white font-heading">
-              {initialMode} Arena
-            </CardTitle>
+            <ViewTransition name={`mode-title-${initialMode}`} share="morph" default="none">
+              <CardTitle className="text-3xl md:text-4xl font-bold capitalize text-white font-heading">
+                {initialMode} Arena
+              </CardTitle>
+            </ViewTransition>
             <div className="pt-1">
               <span className="inline-block px-3.5 py-1 rounded-full bg-white/5 border border-hairline-dark text-xs sm:text-sm text-shade-40 font-mono">
                 Difficulty Preset: <strong className="text-white font-bold">{difficulty}</strong>
@@ -303,7 +328,7 @@ export function GameClient({ mode: initialMode }) {
                 <span className="text-xs sm:text-sm font-bold text-shade-40 block font-mono">
                   Select Round Duration:
                 </span>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[30, 60, 120].map((sec) => (
                     <button
                       key={sec}
@@ -521,7 +546,7 @@ export function GameClient({ mode: initialMode }) {
     <div className="flex-1 flex flex-col items-center justify-center py-8 md:py-12 select-none bg-black text-white">
       <Container className="max-w-2xl flex flex-col gap-6 w-full px-4">
         {/* Game Header Row */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <button
             onClick={() => store.resetGame()}
             className="flex items-center gap-1.5 text-xs text-shade-40 hover:text-white transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 rounded px-2.5 py-1.5 border border-white/5 hover:border-white/15 bg-white/[0.02] cursor-pointer"
@@ -544,7 +569,7 @@ export function GameClient({ mode: initialMode }) {
         </div>
 
         {/* HUD Stats Dashboard */}
-        <div aria-live="polite" className="grid grid-cols-3 gap-3 bg-white/[0.02] border border-hairline-dark p-4 rounded-2xl">
+        <div aria-live="polite" className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 bg-white/[0.02] border border-hairline-dark p-3 sm:p-4 rounded-2xl">
           <div className="flex flex-col items-center justify-center text-center py-1">
             <span className="text-[10px] text-shade-50 font-semibold  font-mono">Progress</span>
             <span className="font-mono text-base font-bold text-white mt-1">
@@ -603,7 +628,7 @@ export function GameClient({ mode: initialMode }) {
 
         {/* Answer Keyboard Grid (7 Weekday Buttons) */}
         <div className="space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          <div ref={answerGridRef} className="grid grid-cols-2 min-[420px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2">
             {WEEKDAYS.map((day, idx) => {
               const keyShortcut = idx + 1;
               const hasAnswered = store.currentAnswer !== null;
@@ -629,6 +654,7 @@ export function GameClient({ mode: initialMode }) {
                 <button
                   key={day}
                   type="button"
+                  data-selected={isSelected ? "true" : "false"}
                   disabled={hasAnswered}
                   aria-label={`${day}, press ${keyShortcut}`}
                   onClick={() => handleChoice(day)}
@@ -729,7 +755,7 @@ export function GameClient({ mode: initialMode }) {
                       </div>
 
                       {/* Footer Actions */}
-                      <div className="flex justify-between items-center border-t border-hairline-dark pt-4">
+                      <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 items-center border-t border-hairline-dark pt-4">
                         <span className="text-[10px] text-shade-50 font-mono flex items-center gap-1">
                           Press <kbd className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded font-mono text-[9px] text-white">Enter</kbd> to advance
                         </span>

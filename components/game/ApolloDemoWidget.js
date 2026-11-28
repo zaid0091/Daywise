@@ -50,7 +50,7 @@ export function ApolloDemoWidget() {
     <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#0a0a0a] overflow-hidden relative">
       <div className="p-6 flex flex-col justify-between min-h-[344px] gap-4">
         {/* Card Header Top Bar */}
-        <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-white/[0.08] pb-3 shrink-0">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-white/40" />
             <span className="text-sm text-shade-40">
@@ -151,7 +151,7 @@ export function ApolloDemoWidget() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-1">
+                <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 items-center pt-1">
                   <button
                     onClick={handleReset}
                     className="text-xs text-shade-40 hover:text-white transition-colors cursor-pointer"
