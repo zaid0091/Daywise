@@ -1,4 +1,5 @@
 import React from "react";
+import { PageReveal } from "../../components/shared/PageReveal";
 import { LearnClient } from "../../components/learning/LearnClient";
 
 export const dynamic = "force-dynamic";
@@ -14,5 +15,9 @@ export const metadata = {
 };
 
 export default function LearnPage() {
-  return <LearnClient />;
+  return (
+    <PageReveal>
+      <LearnClient />
+    </PageReveal>
+  );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { PageReveal } from "../../components/shared/PageReveal";
 import SettingsClient from "../../components/settings/SettingsClient";
 
 export const dynamic = "force-dynamic";
@@ -9,5 +10,9 @@ export const metadata = {
 };
 
 export default function SettingsPage() {
-  return <SettingsClient />;
+  return (
+    <PageReveal>
+      <SettingsClient />
+    </PageReveal>
+  );
 }

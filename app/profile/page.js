@@ -1,4 +1,5 @@
 import React from "react";
+import { PageReveal } from "../../components/shared/PageReveal";
 import ProfileClient from "../../components/profile/ProfileClient";
 
 export const dynamic = "force-dynamic";
@@ -9,5 +10,9 @@ export const metadata = {
 };
 
 export default function ProfilePage() {
-  return <ProfileClient />;
+  return (
+    <PageReveal>
+      <ProfileClient />
+    </PageReveal>
+  );
 }

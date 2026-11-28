@@ -1,4 +1,5 @@
 import React from "react";
+import { PageReveal } from "../../components/shared/PageReveal";
 import LeaderboardClient from "../../components/leaderboard/LeaderboardClient";
 
 export const dynamic = "force-dynamic";
@@ -9,5 +10,9 @@ export const metadata = {
 };
 
 export default function LeaderboardPage() {
-  return <LeaderboardClient />;
+  return (
+    <PageReveal>
+      <LeaderboardClient />
+    </PageReveal>
+  );
 }

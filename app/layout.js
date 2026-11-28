@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "../components/navigation/Navbar";
 import { Footer } from "../components/navigation/Footer";
 import { SmoothScroll } from "../components/shared/SmoothScroll";
+import { MorphTransition } from "../components/shared/MorphTransition";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${manrope.className} min-h-screen flex flex-col bg-background text-foreground font-sans`}>
         <SmoothScroll />
+        <MorphTransition />
         <Suspense fallback={<div className="h-16 border-b border-border bg-background" />}>
           <Navbar />
         </Suspense>

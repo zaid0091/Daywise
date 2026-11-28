@@ -1,4 +1,5 @@
 import React from "react";
+import { PageReveal } from "../../components/shared/PageReveal";
 import PracticeClient from "../../components/practice/PracticeClient";
 
 export const dynamic = "force-dynamic";
@@ -9,5 +10,9 @@ export const metadata = {
 };
 
 export default function PracticePage() {
-  return <PracticeClient />;
+  return (
+    <PageReveal>
+      <PracticeClient />
+    </PageReveal>
+  );
 }
