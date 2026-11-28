@@ -79,6 +79,12 @@ const VELOCITY_PHRASES = [
   "Anchor days",
 ];
 
+// Film-grain texture: an SVG noise tile. Adds depth to the black without adding any colour.
+const GRAIN =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>"
+  + "<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter>"
+  + "<rect width='100%' height='100%' filter='url(%23n)'/></svg>\")";
+
 export function HomeClient() {
   const rootRef = useRef(null);
   const heroMouseRef = useRef({ x: 0, y: 0 });
@@ -359,6 +365,11 @@ export function HomeClient() {
     <div ref={rootRef} className="relative min-h-screen bg-black text-white">
       <div
         aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.045] mix-blend-screen"
+        style={{ backgroundImage: GRAIN }}
+      />
+      <div
+        aria-hidden="true"
         data-cursor
         style={{ display: "none" }}
         className="pointer-events-none fixed left-0 top-0 z-[70] -ml-[14px] -mt-[14px] h-7 w-7 rounded-full border border-white/80 bg-white/10"
@@ -387,7 +398,7 @@ export function HomeClient() {
           <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-12">
             <div className="flex flex-col items-start gap-7 lg:col-span-6">
               <p data-hero-eyebrow className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30">
-                <span aria-hidden="true" className="mr-2.5 inline-block h-1.5 w-1.5 bg-white/70" />Conway’s Doomsday Rule
+                Conway’s Doomsday Rule
               </p>
 
               <h1 className="display-xl font-heading font-light leading-[1.02] text-balance text-white">
@@ -431,7 +442,7 @@ export function HomeClient() {
         <Container className="max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="flex flex-col gap-6 self-start lg:sticky lg:top-32 lg:col-span-5">
-              <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30"><span aria-hidden="true" className="mr-2.5 inline-block h-1.5 w-1.5 bg-white/70" />The method</p>
+              <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30">The method</p>
               <h2 className="display-lg font-heading font-light leading-tight text-balance text-white">
                 Four steps, one habit
               </h2>
@@ -491,7 +502,7 @@ export function HomeClient() {
         <Container className="max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div data-reveal className="space-y-4 lg:col-span-4">
-              <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30"><span aria-hidden="true" className="mr-2.5 inline-block h-1.5 w-1.5 bg-white/70" />Train</p>
+              <p className="inline-flex w-fit self-start items-center rounded-sm border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] leading-none text-shade-30">Train</p>
               <h2 className="display-lg font-heading font-light leading-tight text-balance text-white">
                 Four places to practice
               </h2>
