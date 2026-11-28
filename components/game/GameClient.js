@@ -45,7 +45,7 @@ const MODE_COLOR_MAP = {
   daily: { text: "text-purple-400", border: "border-purple-500/30", bg: "bg-purple-500/10", shadow: "", dot: "bg-purple-400" },
 };
 
-export function GameClient({ mode: initialMode }) {
+export function GameClient({ mode: initialMode, customQuestions }) {
   const searchParams = useSearchParams();
   const difficulty = searchParams.get("diff") || "medium";
 
@@ -210,7 +210,9 @@ export function GameClient({ mode: initialMode }) {
   }, [store.currentAnswer]);
 
   const handleStart = () => {
-    if (initialMode === "daily") {
+    if (customQuestions && customQuestions.length > 0) {
+      store.initGame(initialMode, "mixed", { customQuestions });
+    } else if (initialMode === "daily") {
       const todayStr = getLocalDateString();
       const dailyQuestions = generateDailyQuestions(todayStr);
       store.initGame("daily", "mixed", { customQuestions: dailyQuestions });
@@ -509,9 +511,11 @@ export function GameClient({ mode: initialMode }) {
           </CardContent>
 
           <CardFooter className="p-6 md:p-8 pt-0 flex flex-col sm:flex-row gap-3">
-            <Button onClick={handleStart} variant="primary" className="w-full sm:flex-1 h-11 text-sm font-bold">
-              Play Again <RefreshCw className="h-4 w-4" />
-            </Button>
+            {initialMode !== "review" && (
+              <Button onClick={handleStart} variant="primary" className="w-full sm:flex-1 h-11 text-sm font-bold">
+                Play Again <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
             <Button asChild variant="outline-on-dark" className="w-full sm:flex-1 h-11 text-sm font-bold">
               <Link href="/practice">
                 Other Arenas
@@ -526,6 +530,7 @@ export function GameClient({ mode: initialMode }) {
   // --- 4. ACTIVE GAME PLAYING VIEW ---
   const currentQuestion = store.questions[store.currentIndex];
   const questionNum = store.currentIndex + 1;
+  const roundTotal = initialMode === "review" ? store.questions.length : 10;
   const isEndless = initialMode === "relaxed";
   
   const parseDateDetails = () => {
@@ -573,7 +578,7 @@ export function GameClient({ mode: initialMode }) {
           <div className="flex flex-col items-center justify-center text-center py-1">
             <span className="text-[10px] text-shade-50 font-semibold  font-mono">Progress</span>
             <span className="font-mono text-base font-bold text-white mt-1">
-              {isEndless ? `Solves: ${store.answers.length}` : `${questionNum} / 10`}
+              {isEndless ? `Solves: ${store.answers.length}` : `${questionNum} / ${roundTotal}`}
             </span>
           </div>
 
@@ -607,7 +612,7 @@ export function GameClient({ mode: initialMode }) {
           <div className="w-full bg-white/[0.05] h-1.5 rounded-full overflow-hidden -mt-2">
             <div
               className="bg-indigo-400 h-full transition-[width] duration-500 rounded-full"
-              style={{ width: `${Math.round(((questionNum - 1) / 10) * 100)}%` }}
+              style={{ width: `${Math.round(((questionNum - 1) / roundTotal) * 100)}%` }}
             />
           </div>
         )}

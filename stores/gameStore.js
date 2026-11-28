@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { generateQuestion, generateQuestions } from "../lib/game/questionGenerator";
 import { calculateScore } from "../lib/game/scoring";
+import { recordMiss, recordReviewSuccess, recordReviewFailure } from "../lib/review/spacedRepetition";
 
 export const useGameStore = create((set, get) => ({
   // Core State
@@ -85,6 +86,20 @@ export const useGameStore = create((set, get) => ({
 
     const updatedAnswers = [...answers, answerLog];
 
+    // Spaced repetition. A review question advances or resets its own item; an ordinary miss joins the queue.
+    // Items are keyed on the calendar date (ISO), which is stable across rounds.
+    const isReview = String(currentQuestion.id).startsWith("review-");
+    if (isReview) {
+      if (isCorrect) recordReviewSuccess(currentQuestion.date);
+      else recordReviewFailure(currentQuestion.date);
+    } else if (!isCorrect) {
+      recordMiss({
+        id: currentQuestion.date,
+        formattedDate: currentQuestion.formattedDate,
+        correctAnswer: currentQuestion.correctAnswer,
+      });
+    }
+
     set({
       answers: updatedAnswers,
       currentAnswer: answerLog,
@@ -111,6 +126,11 @@ export const useGameStore = create((set, get) => ({
       }
     } else if (mode === "timed" || mode === "accuracy") {
       if (nextIndex >= 10) {
+        nextGameState = "completed";
+      }
+    } else if (mode === "review") {
+      // A review round is exactly its due dates; it completes after the last one.
+      if (nextIndex >= newQuestions.length) {
         nextGameState = "completed";
       }
     } else if (mode === "speed") {
