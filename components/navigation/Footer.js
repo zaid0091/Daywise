@@ -29,7 +29,7 @@ export function Footer() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-12 md:gap-16 text-sm md:text-[15px]">
             {/* Column 1: Method */}
             <div className="space-y-3 flex flex-col">
-              <span className="text-xs font-mono uppercase tracking-widest text-shade-50 font-semibold mb-1">
+              <span className="text-xs font-mono text-shade-50 font-semibold mb-1">
                 Method
               </span>
               <Link href="/learn/the-idea" className="text-shade-40 hover:text-white transition-colors duration-150">
@@ -51,7 +51,7 @@ export function Footer() {
 
             {/* Column 2: Arenas */}
             <div className="space-y-3 flex flex-col">
-              <span className="text-xs font-mono uppercase tracking-widest text-shade-50 font-semibold mb-1">
+              <span className="text-xs font-mono text-shade-50 font-semibold mb-1">
                 Training
               </span>
               <Link href="/practice" className="text-shade-40 hover:text-white transition-colors duration-150">
@@ -73,7 +73,7 @@ export function Footer() {
 
             {/* Column 3: Project & Details */}
             <div className="space-y-3 flex flex-col col-span-2 sm:col-span-1">
-              <span className="text-xs font-mono uppercase tracking-widest text-shade-50 font-semibold mb-1">
+              <span className="text-xs font-mono text-shade-50 font-semibold mb-1">
                 Daywise
               </span>
               <Link href="/about" className="text-shade-40 hover:text-white transition-colors duration-150">
@@ -127,13 +127,13 @@ export function Footer() {
             </Link>
           </div>
 
-          <div className="text-xs sm:text-sm font-mono tracking-widest uppercase text-shade-40">
+          <div className="text-xs sm:text-sm font-mono text-shade-40">
             A PROJECT BY{" "}
             <a
               href="https://github.com/zaid0091"
               target="_blank"
               rel="noreferrer"
-              className="text-emerald-400 font-bold hover:text-emerald-300 hover:underline transition-all"
+              className="text-emerald-400 font-bold hover:text-emerald-300 hover:underline transition-colors"
             >
               ZAID0091
             </a>

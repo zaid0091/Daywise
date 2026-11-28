@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,9 +30,19 @@ import { useDailyStore } from "../../stores/dailyStore";
 import { getLocalDateString } from "../../lib/game/streaks";
 import { generateDailyQuestions } from "../../lib/game/dailyChallenge";
 import { getDoomsdayExplanation } from "../../lib/game/dateCalculator";
+import { useMounted } from "../../lib/shared/useMounted";
 import { cn } from "../../lib/utils";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// Static mode palette: defined once at module scope rather than rebuilt on every render.
+const MODE_COLOR_MAP = {
+  relaxed: { text: "text-cyan-400", border: "border-cyan-500/30", bg: "bg-cyan-500/10", shadow: "", dot: "bg-cyan-400" },
+  timed: { text: "text-emerald-400", border: "border-emerald-500/30", bg: "bg-emerald-500/10", shadow: "", dot: "bg-emerald-400" },
+  speed: { text: "text-amber-400", border: "border-amber-500/30", bg: "bg-amber-500/10", shadow: "", dot: "bg-amber-400" },
+  accuracy: { text: "text-indigo-400", border: "border-indigo-500/30", bg: "bg-indigo-500/10", shadow: "", dot: "bg-indigo-400" },
+  daily: { text: "text-purple-400", border: "border-purple-500/30", bg: "bg-purple-500/10", shadow: "", dot: "bg-purple-400" },
+};
 
 export function GameClient({ mode: initialMode }) {
   const searchParams = useSearchParams();
@@ -42,21 +52,53 @@ export function GameClient({ mode: initialMode }) {
   const profile = useProfileStore();
 
   const [selectedDuration, setSelectedDuration] = useState(60); // for speed mode
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
 
   // Time tracking reference
   const questionStartTimeRef = useRef(0);
   const timerIntervalRef = useRef(null);
 
+  const stopInterval = useCallback(() => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+  }, []);
+
+  const startInterval = useCallback(() => {
+    stopInterval();
+    timerIntervalRef.current = setInterval(() => {
+      useGameStore.getState().tickTimer();
+    }, 1000);
+  }, [stopInterval]);
+
+  const handleChoice = useCallback((selectedDay) => {
+    const currentState = useGameStore.getState();
+    if (currentState.currentAnswer) return;
+
+    const now = performance.now();
+    const durationSeconds = (now - questionStartTimeRef.current) / 1000;
+    const result = currentState.submitAnswer(selectedDay, durationSeconds);
+
+    if (result && result.isCorrect) {
+      useProfileStore.getState().addXp(10);
+      setTimeout(() => {
+        const nextState = useGameStore.getState();
+        if (nextState.gameState === "playing") {
+          nextState.goToNextQuestion();
+        }
+      }, 700);
+    }
+  }, []);
+
   // Hydrate stores on mount
   useEffect(() => {
-    setMounted(true);
-    store.resetGame();
+    useGameStore.getState().resetGame();
     useProfileStore.persist.rehydrate();
     return () => {
       stopInterval();
     };
-  }, []);
+  }, [stopInterval]);
 
   // Sync intervals for countdown or elapsed clocks
   useEffect(() => {
@@ -66,7 +108,7 @@ export function GameClient({ mode: initialMode }) {
     } else {
       stopInterval();
     }
-  }, [store.gameState]);
+  }, [store.gameState, startInterval, stopInterval]);
 
   // Track start time on index changes
   useEffect(() => {
@@ -77,83 +119,63 @@ export function GameClient({ mode: initialMode }) {
 
   // Check round completions and award XP/records
   useEffect(() => {
-    if (store.gameState === "completed") {
-      const totalQuestions = store.answers.length;
-      const correctAnswers = store.answers.filter((a) => a.isCorrect);
-      const correctCount = correctAnswers.length;
-      const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
-      
-      const fastestCorrectSolve =
-        correctAnswers.length > 0
-          ? Math.min(...correctAnswers.map((a) => a.responseTimeSeconds))
-          : null;
+    if (store.gameState !== "completed") return;
 
-      if (initialMode === "daily") {
-        const todayStr = getLocalDateString();
-        
-        // 1. Save attempt
-        useDailyStore.getState().saveAttempt(todayStr, {
-          score: store.score,
-          accuracy,
-          elapsedTime: store.elapsedTime,
-          answers: store.answers,
-        });
+    const { answers, score, elapsedTime } = useGameStore.getState();
+    const profileState = useProfileStore.getState();
+    const totalQuestions = answers.length;
+    const correctAnswers = answers.filter((a) => a.isCorrect);
+    const correctCount = correctAnswers.length;
+    const accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
-        // 2. Submit daily activity to profile
-        profile.submitActivity("daily", {
-          completedAll: true,
-          accuracy,
-          lastDifficulty: "mixed",
-          lastSpeed: fastestCorrectSolve,
-        });
+    const fastestCorrectSolve =
+      correctAnswers.length > 0
+        ? Math.min(...correctAnswers.map((a) => a.responseTimeSeconds))
+        : null;
 
-        // 3. Award daily challenge XP (+150 XP)
-        profile.addXp(150);
-      } else {
-        // Submit activity to update streaks, records, achievements
-        profile.submitActivity("practice", {
-          mode: initialMode,
-          score: store.score,
-          correctCount,
-          accuracy,
-          fastestCorrectSolve,
-          difficulty,
-        });
+    if (initialMode === "daily") {
+      const todayStr = getLocalDateString();
+      useDailyStore.getState().saveAttempt(todayStr, {
+        score,
+        accuracy,
+        elapsedTime,
+        answers,
+      });
 
-        // Award +50 XP for completing a practice round
-        profile.addXp(50);
-      }
+      profileState.submitActivity("daily", {
+        completedAll: true,
+        accuracy,
+        lastDifficulty: "mixed",
+        lastSpeed: fastestCorrectSolve,
+      });
+      profileState.addXp(150);
+    } else {
+      profileState.submitActivity("practice", {
+        mode: initialMode,
+        score,
+        correctCount,
+        accuracy,
+        fastestCorrectSolve,
+        difficulty,
+      });
+      profileState.addXp(50);
     }
-  }, [store.gameState]);
-
-  const startInterval = () => {
-    stopInterval();
-    timerIntervalRef.current = setInterval(() => {
-      store.tickTimer();
-    }, 1000);
-  };
-
-  const stopInterval = () => {
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
-    }
-  };
+  }, [store.gameState, difficulty, initialMode]);
 
   // Keyboard Shortcuts (1 = Monday ... 7 = Sunday, Enter = Next on explanation)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (store.gameState !== "playing") return;
+      const currentState = useGameStore.getState();
+      if (currentState.gameState !== "playing") return;
 
-      if (store.currentAnswer && !store.currentAnswer.isCorrect && e.key === "Enter") {
+      if (currentState.currentAnswer && !currentState.currentAnswer.isCorrect && e.key === "Enter") {
         e.preventDefault();
-        store.goToNextQuestion();
+        currentState.goToNextQuestion();
         return;
       }
 
-      if (!store.currentAnswer) {
-        const key = e.key;
-        const keyNum = parseInt(key, 10);
+      if (!currentState.currentAnswer) {
+        const keyNum = parseInt(e.key, 10);
         if (keyNum >= 1 && keyNum <= 7) {
           e.preventDefault();
           const selectedDay = WEEKDAYS[keyNum - 1];
@@ -163,7 +185,7 @@ export function GameClient({ mode: initialMode }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [store.gameState, store.currentAnswer, store.currentIndex]);
+  }, [handleChoice]);
 
   const handleStart = () => {
     if (initialMode === "daily") {
@@ -175,31 +197,10 @@ export function GameClient({ mode: initialMode }) {
     }
   };
 
-  const handleChoice = (selectedDay) => {
-    if (store.currentAnswer) return;
-
-    const now = performance.now();
-    const durationSeconds = (now - questionStartTimeRef.current) / 1000;
-    
-    const result = store.submitAnswer(selectedDay, durationSeconds);
-
-    if (result && result.isCorrect) {
-      // Award +10 XP immediately on correct solve
-      profile.addXp(10);
-      
-      // Auto transition next
-      setTimeout(() => {
-        if (useGameStore.getState().gameState === "playing") {
-          store.goToNextQuestion();
-        }
-      }, 700);
-    }
-  };
-
   if (!mounted) {
     return (
       <Container className="py-8 bg-black text-white">
-        <div className="text-center py-20 text-shade-40">Loading Arena...</div>
+        <div className="text-center py-20 text-shade-40">Loading Arena…</div>
       </Container>
     );
   }
@@ -220,7 +221,7 @@ export function GameClient({ mode: initialMode }) {
         <Card className="border-hairline-dark bg-canvas-night-elevated text-center rounded-2xl shadow-xl overflow-hidden">
           <CardHeader className="p-8 md:p-10 items-center space-y-2">
             <div className="flex justify-center mb-2">
-              <span className="p-4 bg-white/5 border border-white/10 text-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.06)]">
+              <span className="p-4 bg-white/5 border border-white/10 text-white rounded-full ">
                 <Play className="h-8 w-8 fill-white" />
               </span>
             </div>
@@ -229,7 +230,7 @@ export function GameClient({ mode: initialMode }) {
             </CardTitle>
             <div className="pt-1">
               <span className="inline-block px-3.5 py-1 rounded-full bg-white/5 border border-hairline-dark text-xs sm:text-sm text-shade-40 font-mono">
-                Difficulty Preset: <strong className="text-white uppercase font-bold">{difficulty}</strong>
+                Difficulty Preset: <strong className="text-white font-bold">{difficulty}</strong>
               </span>
             </div>
           </CardHeader>
@@ -299,7 +300,7 @@ export function GameClient({ mode: initialMode }) {
 
             {initialMode === "speed" && (
               <div className="space-y-3 pt-2">
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-shade-40 block font-mono">
+                <span className="text-xs sm:text-sm font-bold text-shade-40 block font-mono">
                   Select Round Duration:
                 </span>
                 <div className="grid grid-cols-3 gap-3">
@@ -308,7 +309,7 @@ export function GameClient({ mode: initialMode }) {
                       key={sec}
                       onClick={() => setSelectedDuration(sec)}
                       className={cn(
-                        "h-12 text-sm font-semibold rounded-xl border transition-all cursor-pointer",
+                        "h-12 text-sm font-semibold rounded-xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer",
                         selectedDuration === sec
                           ? "bg-white text-black border-white shadow-md font-bold"
                           : "bg-transparent text-white border-hairline-dark hover:bg-white/5"
@@ -323,7 +324,7 @@ export function GameClient({ mode: initialMode }) {
           </CardContent>
 
           <CardFooter className="p-8 md:p-10 pt-0 border-t border-hairline-dark/60 mt-2 flex">
-            <Button onClick={handleStart} variant="primary" className="w-full h-14 text-lg font-bold shadow-[0_0_25px_rgba(255,255,255,0.15)]">
+            <Button onClick={handleStart} variant="primary" className="w-full h-14 text-lg font-bold ">
               Start Training Loop
             </Button>
           </CardFooter>
@@ -343,7 +344,7 @@ export function GameClient({ mode: initialMode }) {
       <Container className="py-8 md:py-12 max-w-xl bg-black text-white">
         <Card className="border-white/20 bg-canvas-night-elevated shadow-xl overflow-hidden">
           <div className="bg-white/5 border-b border-hairline-dark py-8 text-white flex flex-col items-center gap-2">
-            <Sparkles className="h-10 w-10 text-aloe animate-pulse" />
+            <Sparkles className="h-10 w-10 text-aloe " />
             <h1 className="display-md text-white font-light">Milestones Unlocked!</h1>
             <p className="text-xs font-semibold text-shade-40">You earned special rewards during this round.</p>
           </div>
@@ -373,7 +374,7 @@ export function GameClient({ mode: initialMode }) {
                 <h3 className="font-heading text-lg font-bold text-amber-400">NEW PERSONAL BEST!</h3>
                 <div className="flex flex-wrap justify-center gap-1.5 mt-1">
                   {profile.newRecordsBroken.map((rec, idx) => (
-                    <span key={idx} className="bg-amber-500/10 border border-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded text-[10px] uppercase font-mono">
+                    <span key={idx} className="bg-amber-500/10 border border-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded text-[10px] font-mono">
                       {rec}
                     </span>
                   ))}
@@ -449,25 +450,25 @@ export function GameClient({ mode: initialMode }) {
           <CardContent className="p-6 md:p-8 space-y-6">
             <div className="grid grid-cols-2 gap-3.5">
               <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
-                <span className="text-[10px] text-shade-40 block font-semibold uppercase tracking-wider">Score</span>
+                <span className="text-[10px] text-shade-40 block font-semibold ">Score</span>
                 <span className="font-mono text-2xl font-bold text-white block mt-1">
                   {store.score.toLocaleString()}
                 </span>
               </div>
               <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
-                <span className="text-[10px] text-shade-40 block font-semibold uppercase tracking-wider">Accuracy</span>
+                <span className="text-[10px] text-shade-40 block font-semibold ">Accuracy</span>
                 <span className="font-mono text-2xl font-bold text-white block mt-1">
                   {accuracy}%
                 </span>
               </div>
               <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
-                <span className="text-[10px] text-shade-40 block font-semibold uppercase tracking-wider">Solves</span>
+                <span className="text-[10px] text-shade-40 block font-semibold ">Solves</span>
                 <span className="font-mono text-2xl font-bold text-white block mt-1">
                   {correctCount} / {totalQuestions}
                 </span>
               </div>
               <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
-                <span className="text-[10px] text-shade-40 block font-semibold uppercase tracking-wider">Average Speed</span>
+                <span className="text-[10px] text-shade-40 block font-semibold ">Average Speed</span>
                 <span className="font-mono text-2xl font-bold text-white block mt-1">
                   {avgSpeed}s
                 </span>
@@ -514,15 +515,7 @@ export function GameClient({ mode: initialMode }) {
   const dateDetails = parseDateDetails();
   const explanation = dateDetails ? getDoomsdayExplanation(dateDetails.year, dateDetails.month, dateDetails.day) : null;
 
-  // Choose the color theme based on the active mode
-  const modeColorMap = {
-    relaxed: { text: "text-cyan-400", border: "border-cyan-500/30", bg: "bg-cyan-500/10", shadow: "shadow-[0_0_15px_rgba(34,211,238,0.15)]", dot: "bg-cyan-400" },
-    timed: { text: "text-emerald-400", border: "border-emerald-500/30", bg: "bg-emerald-500/10", shadow: "shadow-[0_0_15px_rgba(52,211,153,0.15)]", dot: "bg-emerald-400" },
-    speed: { text: "text-amber-400", border: "border-amber-500/30", bg: "bg-amber-500/10", shadow: "shadow-[0_0_15px_rgba(245,158,11,0.15)]", dot: "bg-amber-400" },
-    accuracy: { text: "text-indigo-400", border: "border-indigo-500/30", bg: "bg-indigo-500/10", shadow: "shadow-[0_0_15px_rgba(129,140,248,0.15)]", dot: "bg-indigo-400" },
-    daily: { text: "text-purple-400", border: "border-purple-500/30", bg: "bg-purple-500/10", shadow: "shadow-[0_0_15px_rgba(168,85,247,0.15)]", dot: "bg-purple-400" },
-  };
-  const modeStyle = modeColorMap[initialMode] || modeColorMap.relaxed;
+  const modeStyle = MODE_COLOR_MAP[initialMode] || MODE_COLOR_MAP.relaxed;
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-8 md:py-12 select-none bg-black text-white">
@@ -531,36 +524,36 @@ export function GameClient({ mode: initialMode }) {
         <div className="flex items-center justify-between">
           <button
             onClick={() => store.resetGame()}
-            className="flex items-center gap-1.5 text-xs text-shade-40 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 rounded px-2.5 py-1.5 border border-white/5 hover:border-white/15 bg-white/[0.02] cursor-pointer"
+            className="flex items-center gap-1.5 text-xs text-shade-40 hover:text-white transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 rounded px-2.5 py-1.5 border border-white/5 hover:border-white/15 bg-white/[0.02] cursor-pointer"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Quit Arena
           </button>
           
           <div className="flex items-center gap-2">
             <span className={cn(
-              "inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[11px] font-mono font-bold tracking-wider uppercase select-none transition-all duration-300 backdrop-blur-md",
+              "inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[11px] font-mono font-bold   select-none transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 backdrop-blur-md",
               modeStyle.border,
               modeStyle.bg,
               modeStyle.text,
               modeStyle.shadow
             )}>
-              <span className={cn("h-1.5 w-1.5 rounded-full animate-pulse", modeStyle.dot)} />
+              <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full ", modeStyle.dot)} />
               {initialMode} &bull; {difficulty}
             </span>
           </div>
         </div>
 
         {/* HUD Stats Dashboard */}
-        <div className="grid grid-cols-3 gap-3 bg-white/[0.02] border border-hairline-dark p-4 rounded-2xl">
+        <div aria-live="polite" className="grid grid-cols-3 gap-3 bg-white/[0.02] border border-hairline-dark p-4 rounded-2xl">
           <div className="flex flex-col items-center justify-center text-center py-1">
-            <span className="text-[10px] text-shade-50 uppercase font-semibold tracking-wider font-mono">Progress</span>
+            <span className="text-[10px] text-shade-50 font-semibold  font-mono">Progress</span>
             <span className="font-mono text-base font-bold text-white mt-1">
               {isEndless ? `Solves: ${store.answers.length}` : `${questionNum} / 10`}
             </span>
           </div>
 
           <div className="flex flex-col items-center justify-center text-center border-x border-hairline-dark py-1 relative">
-            <span className="text-[10px] text-shade-50 uppercase font-semibold tracking-wider font-mono">Score</span>
+            <span className="text-[10px] text-shade-50 font-semibold  font-mono">Score</span>
             <div className="flex items-center justify-center gap-1.5 mt-1">
               <span className="font-mono text-base font-bold text-amber-300">{store.score}</span>
               {store.streak > 0 && (
@@ -572,12 +565,12 @@ export function GameClient({ mode: initialMode }) {
           </div>
 
           <div className="flex flex-col items-center justify-center text-center py-1">
-            <span className="text-[10px] text-shade-50 uppercase font-semibold tracking-wider font-mono">
+            <span className="text-[10px] text-shade-50 font-semibold  font-mono">
               {initialMode === "speed" ? "Time Left" : "Timer"}
             </span>
             <span className={cn(
               "font-mono text-base font-bold mt-1",
-              initialMode === "speed" && store.elapsedTime <= 10 ? "text-rose-400 animate-pulse" : "text-cyan-300"
+              initialMode === "speed" && store.elapsedTime <= 10 ? "text-rose-400 " : "text-cyan-300"
             )}>
               {store.elapsedTime}s
             </span>
@@ -588,17 +581,17 @@ export function GameClient({ mode: initialMode }) {
         {!isEndless && (
           <div className="w-full bg-white/[0.05] h-1.5 rounded-full overflow-hidden -mt-2">
             <div
-              className="bg-gradient-to-r from-emerald-400 via-teal-400 to-indigo-500 h-full transition-all duration-500 rounded-full"
+              className="bg-indigo-400 h-full transition-[width] duration-500 rounded-full"
               style={{ width: `${Math.round(((questionNum - 1) / 10) * 100)}%` }}
             />
           </div>
         )}
 
         {/* Active Question Target Date Display */}
-        <div className="relative border border-white/[0.06] text-center py-10 px-6 bg-gradient-to-b from-[#090b0e] to-[#040507] shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.03)] rounded-2xl overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="relative border border-white/[0.06] text-center py-10 px-6 bg-[#090b0e] rounded-2xl overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-white/10" />
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-shade-50 font-mono font-bold leading-none">
+            <span className="text-[11px] text-shade-50 font-mono font-bold leading-none">
               Calculate Weekday
             </span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-light tracking-tight text-white select-none my-2.5">
@@ -623,8 +616,8 @@ export function GameClient({ mode: initialMode }) {
               if (hasAnswered) {
                 if (isSelected) {
                   btnClass = isCorrect
-                    ? "bg-emerald-500/15 border-emerald-400 text-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.3)] font-bold scale-[0.98]"
-                    : "bg-rose-500/15 border-rose-400 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.3)] font-bold scale-[0.98]";
+                    ? "bg-emerald-500/15 border-emerald-400 text-emerald-300  font-bold scale-[0.98]"
+                    : "bg-rose-500/15 border-rose-400 text-rose-300  font-bold scale-[0.98]";
                 } else if (isCorrect) {
                   btnClass = "border-emerald-500/40 text-emerald-400 bg-emerald-500/10 font-bold";
                 } else {
@@ -635,10 +628,12 @@ export function GameClient({ mode: initialMode }) {
               return (
                 <button
                   key={day}
+                  type="button"
                   disabled={hasAnswered}
+                  aria-label={`${day}, press ${keyShortcut}`}
                   onClick={() => handleChoice(day)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center h-16 rounded-xl border text-[13px] font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 cursor-pointer select-none active:scale-95",
+                    "relative flex flex-col items-center justify-center h-16 rounded-xl border text-[13px] font-medium transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 cursor-pointer select-none active:scale-95",
                     btnClass
                   )}
                 >
@@ -664,7 +659,7 @@ export function GameClient({ mode: initialMode }) {
                 {!store.currentAnswer.isCorrect && explanation && (
                   <div className="border border-rose-500/20 bg-[#090b0d] rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden">
                     {/* Header */}
-                    <div className="flex items-center gap-2 border-b border-hairline-dark p-5 bg-gradient-to-r from-rose-500/[0.04] to-transparent">
+                    <div className="flex items-center gap-2 border-b border-hairline-dark p-5 bg-rose-500/5">
                       <XCircle className="h-5 w-5 shrink-0 text-rose-400" />
                       <span className="text-sm font-semibold text-rose-300 font-heading">
                         Incorrect. Let&apos;s review the 4-step Doomsday proof:
@@ -683,7 +678,7 @@ export function GameClient({ mode: initialMode }) {
                             1
                           </span>
                           <div className="space-y-0.5">
-                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Century Anchor</span>
+                            <span className="text-xs font-mono text-shade-50 block leading-none">Century Anchor</span>
                             <p className="text-sm text-shade-30 mt-1">
                               For the {explanation.centuryStr}, start with <strong className="text-indigo-300">{explanation.centuryDay}</strong> (Code {explanation.centuryCode}).
                             </p>
@@ -696,7 +691,7 @@ export function GameClient({ mode: initialMode }) {
                             2
                           </span>
                           <div className="space-y-0.5">
-                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Year Offset</span>
+                            <span className="text-xs font-mono text-shade-50 block leading-none">Year Offset</span>
                             <p className="text-sm text-shade-30 mt-1 leading-relaxed">
                               {explanation.yearDigits} / 12 = {explanation.yearDiv12} rem {explanation.yearRem12}. Leaps: {explanation.yearRem12}/4 = {explanation.yearLeaps}. <br />
                               Sum = {explanation.yearDiv12 + explanation.yearRem12 + explanation.yearLeaps} &rarr; mod 7 = <span className="text-cyan-300 font-mono font-bold">+{explanation.yearOffset}</span>. <br />
@@ -711,7 +706,7 @@ export function GameClient({ mode: initialMode }) {
                             3
                           </span>
                           <div className="space-y-0.5">
-                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Month Anchor</span>
+                            <span className="text-xs font-mono text-shade-50 block leading-none">Month Anchor</span>
                             <p className="text-sm text-shade-30 mt-1">
                               Doomsday is <strong className="text-teal-300">{explanation.monthName} {explanation.monthAnchorDay}</strong>.
                             </p>
@@ -724,7 +719,7 @@ export function GameClient({ mode: initialMode }) {
                             4
                           </span>
                           <div className="space-y-0.5">
-                            <span className="text-xs font-mono uppercase tracking-wider text-shade-50 block leading-none">Target Date</span>
+                            <span className="text-xs font-mono text-shade-50 block leading-none">Target Date</span>
                             <p className="text-sm text-shade-30 mt-1 leading-relaxed">
                               {dateDetails.day} is {explanation.targetDiffAbs} days {explanation.targetDiff >= 0 ? "after" : "before"} the anchor {explanation.monthAnchorDay}. <br />
                               {explanation.yearDoomsdayDay} {explanation.targetDiffSign} {explanation.targetDiffAbs} days = <strong className="text-emerald-300 text-[15px] font-bold">{explanation.finalDay}</strong>.
@@ -753,7 +748,7 @@ export function GameClient({ mode: initialMode }) {
 
                 {/* Correct answer brief alert */}
                 {store.currentAnswer.isCorrect && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/25 p-4 rounded-xl flex items-center justify-between text-emerald-300 text-sm shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 p-4 rounded-xl flex items-center justify-between text-emerald-300 text-sm ">
                     <span className="font-semibold flex items-center gap-2">
                       <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />
                       Correct solve! (+{store.currentAnswer.scoreGained} pts)

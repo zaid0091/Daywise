@@ -8,10 +8,10 @@ export default function Loading() {
       <div className="relative flex items-center justify-center">
         <span className="animate-ping absolute inline-flex h-12 w-12 rounded-full bg-accent/20 opacity-75" />
         <span className="relative rounded-full p-3 bg-accent/10 text-accent">
-          <Brain className="h-6 w-6 animate-pulse" />
+          <Brain className="h-6 w-6 " />
         </span>
       </div>
-      <span className="text-xs font-bold uppercase tracking-widest text-muted/80 animate-pulse">
+      <span className="text-xs font-bold text-muted/80 ">
         Synchronizing Anchors...
       </span>
     </Container>

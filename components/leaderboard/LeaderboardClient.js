@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Trophy, Award, Sparkles, Medal, ShieldAlert } from "lucide-react";
 import { Container } from "../ui/Container";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/Card";
 import { SectionBadge } from "../ui/SectionBadge";
 import { useProfileStore } from "../../stores/profileStore";
+import { useMounted } from "../../lib/shared/useMounted";
 import { cn } from "../../lib/utils";
 
 const DEMO_PLAYERS = [
@@ -18,11 +19,10 @@ const DEMO_PLAYERS = [
 ];
 
 export default function LeaderboardClient() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const profile = useProfileStore();
 
   useEffect(() => {
-    setMounted(true);
     useProfileStore.persist.rehydrate();
   }, []);
 
@@ -30,7 +30,7 @@ export default function LeaderboardClient() {
     return (
       <Container className="py-8 bg-black text-white">
         <div className="text-center py-20">
-          <p className="text-shade-40">Loading Leaderboard...</p>
+          <p className="text-shade-40">Loading Leaderboard…</p>
         </div>
       </Container>
     );
@@ -98,7 +98,7 @@ export default function LeaderboardClient() {
               <div className="overflow-x-auto w-full">
                 <table className="w-full text-sm text-left border-collapse font-sans">
                   <thead>
-                    <tr className="text-xs uppercase tracking-wider text-white border-b border-hairline-dark bg-white/5">
+                    <tr className="text-xs text-white border-b border-hairline-dark bg-white/5">
                       <th className="py-4 px-6 font-semibold w-16 text-center">Rank</th>
                       <th className="py-4 px-6 font-semibold">User</th>
                       <th className="py-4 px-6 font-semibold text-right">Personal Best</th>
@@ -126,7 +126,7 @@ export default function LeaderboardClient() {
                             <span className="flex items-center gap-2">
                               {player.name}
                               {player.isUser && (
-                                <span className="text-[9px] font-bold tracking-wider uppercase bg-white text-black px-2 py-0.5 rounded-full">
+                                <span className="text-[9px] font-bold bg-white text-black px-2 py-0.5 rounded-full">
                                   You
                                 </span>
                               )}
@@ -175,7 +175,7 @@ export default function LeaderboardClient() {
 
           <Card className="border border-hairline-dark bg-canvas-night-elevated rounded-xl">
             <CardHeader className="p-6 pb-2 text-left">
-              <CardTitle className="text-xs flex items-center gap-1.5 font-bold uppercase tracking-wider text-white">
+              <CardTitle className="text-xs flex items-center gap-1.5 font-bold text-white">
                 <ShieldAlert className="h-4.5 w-4.5" /> Offline Sandbox Notice
               </CardTitle>
             </CardHeader>

@@ -13,7 +13,6 @@ import {
   Sparkles,
   Trophy,
   Brain,
-  Compass,
   Star,
 } from "lucide-react";
 import { Container } from "../ui/Container";
@@ -33,10 +32,13 @@ const AVATAR_OPTIONS = [
   { id: "star", label: "Master", icon: Star },
 ];
 
+const NUMBER = new Intl.NumberFormat("en-US");
+
 export default function ProfileClient() {
   const [mounted, setMounted] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState("");
+  const [nameError, setNameError] = useState("");
 
   const profile = useProfileStore();
 
@@ -48,9 +50,10 @@ export default function ProfileClient() {
 
   const handleSaveProfile = () => {
     if (!tempName.trim()) {
-      alert("Display name cannot be empty.");
+      setNameError("Enter a display name to save.");
       return;
     }
+    setNameError("");
     profile.setDisplayName(tempName.trim());
     setIsEditing(false);
   };
@@ -59,7 +62,7 @@ export default function ProfileClient() {
     return (
       <Container className="py-8 bg-black text-white">
         <div className="text-center py-20">
-          <p className="text-shade-40">Loading Profile...</p>
+          <p className="text-shade-40">Loading Profile…</p>
         </div>
       </Container>
     );
@@ -82,7 +85,7 @@ export default function ProfileClient() {
       desc: `Longest: ${profile.longestStreak}d`,
       icon: Flame,
       color: "text-amber-300",
-      iconBg: "bg-amber-500/10 text-amber-400 border-amber-500/25 shadow-[0_0_15px_rgba(245,158,11,0.15)]",
+      iconBg: "bg-amber-500/10 text-amber-400 border-amber-500/25 ",
     },
     {
       label: "Fastest Answer",
@@ -90,7 +93,7 @@ export default function ProfileClient() {
       desc: "Correct solve speed",
       icon: Timer,
       color: "text-cyan-300",
-      iconBg: "bg-cyan-500/10 text-cyan-400 border-cyan-500/25 shadow-[0_0_15px_rgba(6,182,212,0.15)]",
+      iconBg: "bg-cyan-500/10 text-cyan-400 border-cyan-500/25 ",
     },
     {
       label: "Accuracy Rate",
@@ -98,7 +101,7 @@ export default function ProfileClient() {
       desc: `${totalCorrect}/${totalQuestions} solves`,
       icon: CheckCircle,
       color: "text-emerald-300",
-      iconBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/25 shadow-[0_0_15px_rgba(16,185,129,0.15)]",
+      iconBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/25 ",
     },
     {
       label: "Practice Sessions",
@@ -106,7 +109,7 @@ export default function ProfileClient() {
       desc: "Completed rounds",
       icon: History,
       color: "text-indigo-300",
-      iconBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.15)]",
+      iconBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/25 ",
     },
   ];
 
@@ -116,30 +119,43 @@ export default function ProfileClient() {
       <div className="flex flex-col items-center gap-6 border-b border-hairline-dark py-8 md:py-10 mb-8 text-center">
         <div className="flex flex-col items-center gap-4">
           {/* Avatar Icon */}
-          <div className="h-18 w-18 rounded-2xl bg-gradient-to-tr from-emerald-500/20 via-teal-500/20 to-indigo-500/20 text-white border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-[0_0_25px_rgba(16,185,129,0.2)]">
+          <div className="h-18 w-18 rounded-2xl bg-emerald-500/20 text-white border border-emerald-500/30 flex items-center justify-center shrink-0 ">
             <AvatarIcon className="h-9 w-9 text-emerald-300" />
           </div>
 
           <div className="space-y-1">
             {isEditing ? (
+              <>
               <div className="flex gap-2 justify-center">
                 <input
                   type="text"
+                  name="displayName"
+                  autoComplete="off"
+                  aria-label="Display name"
+                  aria-invalid={nameError ? "true" : "false"}
+                  aria-describedby={nameError ? "display-name-error" : undefined}
                   maxLength={20}
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="bg-canvas-night-elevated border border-emerald-500/40 px-3 py-1.5 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400 font-semibold text-white"
+                  className="bg-canvas-night-elevated border border-emerald-500/40 px-3 py-1.5 text-sm rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus:ring-2 focus:ring-emerald-400 font-semibold text-white"
                 />
                 <Button size="sm" variant="primary" onClick={handleSaveProfile}>Save</Button>
                 <Button size="sm" variant="outline-on-dark" onClick={() => { setIsEditing(false); setTempName(profile.displayName); }}>Cancel</Button>
               </div>
+              {nameError && (
+                <p id="display-name-error" role="alert" className="w-full text-xs text-rose-400 pt-1">
+                  {nameError}
+                </p>
+              )}
+              </>
             ) : (
               <div className="flex items-center gap-2 justify-center">
                 <h1 className="display-md text-white font-light leading-none tracking-tight font-heading">{profile.displayName}</h1>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="p-1.5 hover:bg-white/10 border border-transparent hover:border-hairline-dark text-shade-40 hover:text-white rounded-full transition-all cursor-pointer"
-                  title="Edit Display Name"
+                  className="p-1.5 hover:bg-white/10 border border-transparent hover:border-hairline-dark text-shade-40 hover:text-white rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
+                  title="Edit display name"
+                  aria-label="Edit display name"
                 >
                   <Edit2 className="h-3.5 w-3.5" />
                 </button>
@@ -155,12 +171,12 @@ export default function ProfileClient() {
 
         <div className="flex items-center gap-6 bg-canvas-night-elevated p-4 rounded-2xl border border-hairline-dark shrink-0">
           <div className="text-center px-4 border-r border-hairline-dark">
-            <span className="text-[10px] text-shade-40 font-bold uppercase tracking-wider block font-mono">Level</span>
+            <span className="text-[10px] text-shade-40 font-bold block font-mono">Level</span>
             <span className="font-heading text-2xl font-bold text-indigo-300">{profile.level}</span>
           </div>
           <div className="text-center px-4">
-            <span className="text-[10px] text-shade-40 font-bold uppercase tracking-wider block font-mono">Total XP</span>
-            <span className="font-heading text-2xl font-bold text-emerald-300">{profile.xp.toLocaleString()} XP</span>
+            <span className="text-[10px] text-shade-40 font-bold block font-mono">Total XP</span>
+            <span className="font-heading text-2xl font-bold text-emerald-300">{NUMBER.format(profile.xp)} XP</span>
           </div>
         </div>
       </div>
@@ -180,9 +196,10 @@ export default function ProfileClient() {
                 <button
                   key={opt.id}
                   onClick={() => profile.setAvatar(opt.id)}
+                  aria-pressed={active}
                   className={cn(
-                    "flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer hover:bg-white/10 transition-all duration-200",
-                    active ? "border-emerald-400 bg-emerald-500/15 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : "border-hairline-dark bg-canvas-night-elevated text-white"
+                    "flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer hover:bg-white/10 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200",
+                    active ? "border-emerald-400 bg-emerald-500/15 text-emerald-300 " : "border-hairline-dark bg-canvas-night-elevated text-white"
                   )}
                 >
                   <div className="p-2.5 rounded-full bg-white/5 text-white mb-2">
@@ -199,18 +216,25 @@ export default function ProfileClient() {
       {/* Level XP Progress Bar */}
       <Card className="mb-8 border border-hairline-dark bg-canvas-night-elevated rounded-2xl">
         <CardContent className="p-6 space-y-3 text-left">
-          <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-white font-mono">
+          <div className="flex justify-between text-xs font-bold text-white font-mono">
             <span>Level {level} Progress</span>
             <span className="text-indigo-300">{xpInCurrentLevel} / {xpNeededForNextLevel} XP</span>
           </div>
-          <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden">
+          <div
+            role="progressbar"
+            aria-label={`Level ${level} progress`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(percent)}
+            className="w-full bg-white/10 h-3 rounded-full overflow-hidden"
+          >
             <div
-              className="bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 h-full transition-all duration-500 rounded-full"
+              className="bg-indigo-400 h-full transition-[width] duration-500 rounded-full"
               style={{ width: `${percent}%` }}
             />
           </div>
           <p className="text-xs text-shade-40">
-            {xpRemaining.toLocaleString()} XP remaining to reach Level {level + 1}.
+            {NUMBER.format(xpRemaining)} XP remaining to reach Level {level + 1}.
           </p>
         </CardContent>
       </Card>
@@ -220,13 +244,13 @@ export default function ProfileClient() {
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <Card key={metric.label} className="border border-hairline-dark bg-canvas-night-elevated rounded-2xl hover:border-white/20 transition-all">
+            <Card key={metric.label} className="border border-hairline-dark bg-canvas-night-elevated rounded-2xl hover:border-white/20 transition-[background-color,border-color,color,box-shadow,transform,opacity]">
               <CardContent className="p-5 flex items-center gap-4 text-left">
                 <div className={cn("p-2.5 rounded-xl shrink-0 border flex items-center justify-center", metric.iconBg)}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-shade-40 block font-semibold uppercase tracking-wider font-mono">{metric.label}</span>
+                  <span className="text-[10px] text-shade-40 block font-semibold font-mono">{metric.label}</span>
                   <span className={cn("font-heading text-xl font-bold block mt-0.5", metric.color)}>{metric.value}</span>
                   <span className="text-[9px] text-shade-40 block mt-0.5">{metric.desc}</span>
                 </div>
@@ -254,13 +278,13 @@ export default function ProfileClient() {
           <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
             <span className="text-shade-40 block font-mono">High Score (Timed):</span>
             <strong className="text-lg text-amber-300 block mt-1 font-mono">
-              {(profile.records.bestTimedScore ?? 0).toLocaleString()} pts
+              {NUMBER.format(profile.records.bestTimedScore ?? 0)} pts
             </strong>
           </div>
           <div className="border border-hairline-dark p-4 rounded-xl bg-black/60">
             <span className="text-shade-40 block font-mono">High Score (Speed):</span>
             <strong className="text-lg text-emerald-300 block mt-1 font-mono">
-              {(profile.records.mostSpeedRunSolves ?? 0).toLocaleString()} solves
+              {NUMBER.format(profile.records.mostSpeedRunSolves ?? 0)} solves
             </strong>
           </div>
         </CardContent>
@@ -286,10 +310,10 @@ export default function ProfileClient() {
               <div
                 key={ach.id}
                 className={cn(
-                  "p-4 rounded-xl border flex items-start gap-3 text-left transition-all duration-200",
+                  "p-4 rounded-xl border flex items-start gap-3 text-left transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200",
                   isUnlocked
-                    ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border-emerald-500/30 text-white shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                    : "bg-white/5 border-hairline-dark text-shade-40 opacity-40"
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-white "
+                    : "bg-white/5 border-hairline-dark text-shade-40"
                 )}
               >
                 <div
@@ -304,6 +328,7 @@ export default function ProfileClient() {
                   <strong className={cn("text-xs block font-bold", isUnlocked ? "text-emerald-200" : "text-shade-40")}>
                     {ach.name}
                   </strong>
+                  <span className="sr-only">{isUnlocked ? "Unlocked" : "Locked"}</span>
                   <p className="text-[11px] text-shade-40 leading-snug">{ach.description}</p>
                 </div>
               </div>

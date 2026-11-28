@@ -5,27 +5,24 @@ import { motion } from "framer-motion";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "../../lib/utils";
 
-export const Button = React.forwardRef(
-  (
-    {
-      className,
-      variant = "primary",
-      size = "md",
-      disabled = false,
-      asChild = false,
-      onClick,
-      children,
-      type = "button",
-      ...props
-    },
-    ref
-  ) => {
+export function Button({
+  className,
+  variant = "primary",
+  size = "md",
+  disabled = false,
+  asChild = false,
+  onClick,
+  children,
+  type = "button",
+  ref,
+  ...props
+}) {
     const baseStyles =
-      "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-40 cursor-pointer select-none";
+      "inline-flex items-center justify-center rounded-full font-medium transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-40 cursor-pointer select-none";
 
     const variants = {
       primary:
-        "bg-white text-black font-semibold hover:bg-shade-30 active:bg-shade-40 shadow-[0_1px_2px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.4)]",
+        "bg-white text-black font-semibold hover:bg-shade-30 active:bg-shade-40",
       "outline-on-dark":
         "bg-transparent text-white border border-white/25 hover:border-white hover:bg-white/10 active:bg-white/15",
       aloe:
@@ -80,7 +77,4 @@ export const Button = React.forwardRef(
         {children}
       </motion.button>
     );
-  }
-);
-
-Button.displayName = "Button";
+}

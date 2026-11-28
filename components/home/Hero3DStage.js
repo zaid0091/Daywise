@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 
 const ANCHOR_LABELS = ["4/4", "6/6", "8/8", "10/10", "12/12", "7/11", "9/5"];
-const WEEKDAY_LABELS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function rotate3D(x, y, z, rx, ry, rz) {
   // Rotate X
@@ -89,7 +89,7 @@ export function Hero3DStage({ mouseRef }) {
         y: ((i % 7) - 3) * 52,
         z: Math.sin(angle) * radius,
         size: 1.5 + (i % 3) * 0.8,
-        emerald: i % 3 === 0,
+        emerald: false,
       };
     });
 
@@ -139,7 +139,7 @@ export function Hero3DStage({ mouseRef }) {
 
       // 2. Three concentric 3D orbital rings
       const rings = [
-        { radius: 220, rx: 1.05 + currentTiltX, ry: elapsed * 0.16 + currentTiltY, rz: 0.25, color: "rgba(52, 211, 153, 0.14)", dash: [] },
+        { radius: 220, rx: 1.05 + currentTiltX, ry: elapsed * 0.16 + currentTiltY, rz: 0.25, color: "rgba(255, 255, 255, 0.10)", dash: [] },
         { radius: 295, rx: 0.72 + currentTiltX * 0.8, ry: -elapsed * 0.11 + currentTiltY, rz: -0.45, color: "rgba(255, 255, 255, 0.07)", dash: [4, 6] },
         { radius: 365, rx: 1.25 + currentTiltX * 0.6, ry: elapsed * 0.07 + currentTiltY, rz: 0.65, color: "rgba(255, 255, 255, 0.05)", dash: [] },
       ];
@@ -246,21 +246,19 @@ export function Hero3DStage({ mouseRef }) {
         const depthAlpha = Math.max(0.15, Math.min(1, 1 - (item.z + 180) / 720));
 
         if (item.type === "particle") {
-          ctx.fillStyle = item.emerald
-            ? `rgba(52, 211, 153, ${0.55 * depthAlpha})`
-            : `rgba(255, 255, 255, ${0.35 * depthAlpha})`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.3 * depthAlpha})`;
           ctx.beginPath();
           ctx.arc(item.x, item.y, item.size * item.scale, 0, Math.PI * 2);
           ctx.fill();
         } else if (item.type === "anchor") {
           const rad = 4.2 * item.scale;
-          ctx.fillStyle = `rgba(52, 211, 153, ${0.9 * depthAlpha})`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * depthAlpha})`;
           ctx.beginPath();
           ctx.arc(item.x, item.y, rad, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = `rgba(193, 251, 212, ${0.8 * depthAlpha})`;
-          ctx.font = `600 ${Math.max(9, Math.round(11 * item.scale))}px ui-monospace, monospace`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.7 * depthAlpha})`;
+          ctx.font = `500 ${Math.max(10, Math.round(12 * item.scale))}px Manrope, system-ui, sans-serif`;
           ctx.fillText(item.label, item.x + rad + 5, item.y + 3);
         } else if (item.type === "weekday") {
           const rad = 3 * item.scale;
@@ -270,7 +268,7 @@ export function Hero3DStage({ mouseRef }) {
           ctx.fill();
 
           ctx.fillStyle = `rgba(161, 161, 170, ${0.7 * depthAlpha})`;
-          ctx.font = `500 ${Math.max(8, Math.round(10 * item.scale))}px ui-monospace, monospace`;
+          ctx.font = `400 ${Math.max(9, Math.round(11 * item.scale))}px Manrope, system-ui, sans-serif`;
           ctx.fillText(item.label, item.x + rad + 4, item.y + 3);
         }
       }
@@ -292,7 +290,7 @@ export function Hero3DStage({ mouseRef }) {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="absolute inset-0 w-full h-full pointer-events-none opacity-85"
+      className="absolute inset-0 h-full w-full opacity-60 pointer-events-none"
     />
   );
 }

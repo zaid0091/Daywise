@@ -10,6 +10,7 @@ import { Card, CardContent } from "../ui/Card";
 import { LESSONS } from "../../data/lessons";
 import { completeLesson } from "../../lib/storage/storage";
 import { useProfileStore } from "../../stores/profileStore";
+import { useMounted } from "../../lib/shared/useMounted";
 import { cn } from "../../lib/utils";
 
 export function LessonClient({ lessonId }) {
@@ -18,13 +19,16 @@ export function LessonClient({ lessonId }) {
   const [quizSelected, setQuizSelected] = useState(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
 
   const quizHeadingRef = useRef(null);
+  const isQuizSlide = lesson ? currentSlide === lesson.sections.length : false;
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (isQuizSlide && quizHeadingRef.current) {
+      quizHeadingRef.current.focus();
+    }
+  }, [isQuizSlide]);
 
   if (!lesson) {
     return (
@@ -39,7 +43,6 @@ export function LessonClient({ lessonId }) {
   }
 
   const slides = lesson.sections;
-  const isQuizSlide = currentSlide === slides.length;
   const totalSteps = slides.length + 1;
   const progressPercent = Math.min(100, Math.round(((currentSlide + 1) / totalSteps) * 100));
 
@@ -78,7 +81,7 @@ export function LessonClient({ lessonId }) {
     switch (lesson.id) {
       case "the-idea":
         return (
-          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 text-center font-mono mt-5">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 text-center mt-5">
             {[
               { name: "Sun", code: 0 },
               { name: "Mon", code: 1 },
@@ -89,7 +92,7 @@ export function LessonClient({ lessonId }) {
               { name: "Sat", code: 6 },
             ].map((day) => (
               <div key={day.code} className="border border-hairline-dark p-3 rounded-xl bg-black/60">
-                <div className="text-[11px] font-semibold text-shade-40 uppercase tracking-wider">{day.name}</div>
+                <div className="text-[11px] font-semibold text-shade-40 ">{day.name}</div>
                 <div className="text-xl font-bold text-white mt-0.5">{day.code}</div>
               </div>
             ))}
@@ -98,7 +101,7 @@ export function LessonClient({ lessonId }) {
       case "anchor-days":
         return (
           <div className="border border-hairline-dark rounded-xl p-4 bg-black/60 text-xs md:text-sm space-y-2 mt-5">
-            <p className="font-semibold text-aloe flex items-center gap-1.5 font-mono">
+            <p className="flex items-center gap-1.5 font-semibold text-white">
               <CheckCircle2 className="h-4 w-4" />
               Doomsday Reference Anchors:
             </p>
@@ -109,7 +112,7 @@ export function LessonClient({ lessonId }) {
         );
       case "century-anchors":
         return (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 font-mono mt-6 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-6 text-center">
             {[
               { range: "1800s", day: "Friday", code: 5 },
               { range: "1900s", day: "Wednesday", code: 3 },
@@ -118,15 +121,15 @@ export function LessonClient({ lessonId }) {
             ].map((c) => (
               <div
                 key={c.range}
-                className="border border-hairline-dark hover:border-emerald-400/40 p-4 sm:p-5 rounded-2xl bg-black/80 shadow-md flex flex-col items-center justify-between transition-all"
+                className="border border-hairline-dark hover:border-white/25 p-4 sm:p-5 rounded-2xl bg-black/80 flex flex-col items-center justify-between transition-[background-color,border-color,color,box-shadow,transform,opacity]"
               >
-                <span className="text-xs sm:text-sm text-shade-40 font-bold uppercase tracking-wider block font-mono">
+                <span className="text-xs sm:text-sm text-shade-40 font-medium block">
                   {c.range}
                 </span>
                 <span className="text-lg sm:text-2xl font-bold text-white block my-2 font-heading">
                   {c.day}
                 </span>
-                <span className="text-xs sm:text-sm text-emerald-300 font-mono font-bold bg-emerald-500/10 border border-emerald-500/25 px-3 py-1 rounded-full block mt-1">
+                <span className="text-xs sm:text-sm text-white border border-hairline-dark px-3 py-1 rounded-full block mt-1">
                   Code {c.code}
                 </span>
               </div>
@@ -135,17 +138,17 @@ export function LessonClient({ lessonId }) {
         );
       case "year-calculation":
         return (
-          <div className="border border-hairline-dark bg-black/60 p-4 rounded-xl font-mono text-xs space-y-2.5 mt-5">
-            <p className="font-semibold text-white uppercase tracking-wider border-b border-hairline-dark/60 pb-1.5">Conway Formula Steps:</p>
+          <div className="border border-hairline-dark bg-black/60 p-4 rounded-xl text-xs space-y-2.5 mt-5">
+            <p className="font-semibold text-white border-b border-hairline-dark/60 pb-1.5">Conway Formula Steps:</p>
             <p className="flex justify-between text-shade-40"><span>Step A: Y / 12</span> <span className="text-white font-bold">12s division</span></p>
             <p className="flex justify-between text-shade-40"><span>Step B: Y % 12</span> <span className="text-white font-bold">Remainder</span></p>
             <p className="flex justify-between text-shade-40"><span>Step C: Remainder / 4</span> <span className="text-white font-bold">Leap years count</span></p>
-            <p className="flex justify-between border-t border-hairline-dark pt-1.5 font-bold text-aloe"><span>Offset: (A + B + C) % 7</span> <span>Shift days</span></p>
+            <p className="flex justify-between border-t border-hairline-dark pt-1.5 font-bold text-white"><span>Offset: (A + B + C) % 7</span> <span>Shift days</span></p>
           </div>
         );
       case "month-anchors":
         return (
-          <div className="grid sm:grid-cols-2 gap-3.5 font-mono text-xs mt-5">
+          <div className="grid sm:grid-cols-2 gap-3.5 text-xs mt-5">
             <div className="border border-hairline-dark p-4 rounded-xl bg-black/60 space-y-1.5 text-shade-40">
               <span className="font-semibold text-white border-b border-hairline-dark pb-1.5 block">Even Months</span>
               <p>&bull; April: <strong className="text-white">4/4</strong></p>
@@ -167,20 +170,20 @@ export function LessonClient({ lessonId }) {
       case "putting-together":
         return (
           <div className="border border-hairline-dark bg-black/60 p-4 rounded-xl text-xs leading-relaxed space-y-1.5 mt-5 font-sans">
-            <p className="font-bold text-aloe uppercase tracking-wider">Calculation Pipeline:</p>
+            <p className="font-semibold text-white">Calculation pipeline:</p>
             <p className="text-shade-40">1. Find Century Anchor &rarr; 2. Add Year Offset Drift &rarr; 3. Pinpoint Month Anchor Date &rarr; 4. Step to Target Day.</p>
           </div>
         );
       case "leap-years":
         return (
-          <div className="grid grid-cols-2 gap-3 text-center font-mono mt-5 text-xs">
+          <div className="grid grid-cols-2 gap-3 text-center mt-5 text-xs">
             <div className="border border-hairline-dark p-3.5 rounded-xl bg-black/60 text-shade-40">
               <span className="font-semibold block text-white">Common Year</span>
               <p className="mt-1">Jan anchor: <strong className="text-white">3rd</strong></p>
               <p>Feb anchor: <strong className="text-white">28th</strong></p>
             </div>
-            <div className="border border-aloe/20 p-3.5 bg-aloe/5 rounded-xl text-shade-40">
-              <span className="font-semibold block text-aloe">Leap Year</span>
+            <div className="border border-hairline-dark p-3.5 bg-white/[0.03] rounded-xl text-shade-40">
+              <span className="font-semibold block text-white">Leap Year</span>
               <p className="mt-1">Jan anchor: <strong className="text-white">4th</strong></p>
               <p>Feb anchor: <strong className="text-white">29th</strong></p>
             </div>
@@ -188,16 +191,16 @@ export function LessonClient({ lessonId }) {
         );
       case "speed-techniques":
         return (
-          <div className="border border-hairline-dark bg-black/60 p-4 rounded-xl text-xs font-mono mt-5 space-y-1.5 text-shade-40">
+          <div className="border border-hairline-dark bg-black/60 p-4 rounded-xl text-xs mt-5 space-y-1.5 text-shade-40">
             <p className="font-semibold text-white">Modulo 7 subtraction shortcuts:</p>
-            <p className="flex justify-between"><span>+6 days shift</span> <span className="text-aloe">&rarr; &minus;1 day</span></p>
-            <p className="flex justify-between"><span>+5 days shift</span> <span className="text-aloe">&rarr; &minus;2 days</span></p>
-            <p className="flex justify-between"><span>+4 days shift</span> <span className="text-aloe">&rarr; &minus;3 days</span></p>
+            <p className="flex justify-between"><span>+6 days shift</span> <span className="text-white">&rarr; &minus;1 day</span></p>
+            <p className="flex justify-between"><span>+5 days shift</span> <span className="text-white">&rarr; &minus;2 days</span></p>
+            <p className="flex justify-between"><span>+4 days shift</span> <span className="text-white">&rarr; &minus;3 days</span></p>
           </div>
         );
       case "mental-shortcuts":
         return (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono mt-5 text-center text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-5 text-center text-xs">
             {[
               { year: "2024", day: "Thu" },
               { year: "2025", day: "Fri" },
@@ -206,7 +209,7 @@ export function LessonClient({ lessonId }) {
             ].map((y) => (
               <div key={y.year} className="border border-hairline-dark p-3 rounded-xl bg-black/60">
                 <strong className="text-white block">{y.year}</strong>
-                <span className="text-aloe font-bold block mt-0.5">{y.day}</span>
+                <span className="block mt-0.5 font-medium text-white">{y.day}</span>
               </div>
             ))}
           </div>
@@ -215,12 +218,6 @@ export function LessonClient({ lessonId }) {
         return null;
     }
   };
-
-  useEffect(() => {
-    if (isQuizSlide && quizHeadingRef.current) {
-      quizHeadingRef.current.focus();
-    }
-  }, [isQuizSlide]);
 
   if (!mounted) return null;
 
@@ -237,12 +234,12 @@ export function LessonClient({ lessonId }) {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-4">
           <div>
-            <span className="eyebrow-cap text-shade-40">Lesson {lessonId}</span>
-            <h1 className="display-md text-white font-light mt-0.5">
+            <span className="text-sm text-shade-40">Lesson {lessonId}</span>
+            <h1 className="display-md mt-1 font-heading font-light text-white">
               {lesson.title}
             </h1>
           </div>
-          <span className="text-xs text-shade-40 font-mono" aria-live="polite">
+          <span className="text-sm tabular-nums text-shade-40" aria-live="polite">
             Step {currentSlide + 1} of {totalSteps}
           </span>
         </div>
@@ -250,14 +247,14 @@ export function LessonClient({ lessonId }) {
         {/* Progress Bar */}
         <div className="w-full bg-white/10 h-1.5 rounded-full mt-4 overflow-hidden">
           <div
-            className="bg-aloe h-full transition-all duration-300"
+            className="bg-white h-full transition-[width] duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
       {/* Main Slide Card */}
-      <div className="min-h-[520px] md:min-h-[460px] flex flex-col justify-between border border-hairline-dark bg-canvas-night-elevated p-6 md:p-8 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+      <div className="min-h-[520px] md:min-h-[460px] flex flex-col justify-between border border-hairline-dark bg-canvas-night-elevated p-6 md:p-8 rounded-2xl">
         <AnimatePresence mode="wait">
           {!isQuizSlide ? (
             <motion.div
@@ -268,7 +265,7 @@ export function LessonClient({ lessonId }) {
               transition={{ duration: 0.2 }}
               className="space-y-5"
             >
-              <h2 className="font-heading text-lg md:text-xl font-bold border-b border-hairline-dark/60 pb-3 text-white">
+              <h2 className="border-b border-hairline-dark pb-3 font-heading text-xl font-light text-white md:text-2xl">
                 {slides[currentSlide].title}
               </h2>
               
@@ -288,11 +285,11 @@ export function LessonClient({ lessonId }) {
               className="space-y-5"
             >
               <div className="flex items-center gap-2 border-b border-hairline-dark/60 pb-3">
-                <HelpCircle className="h-5 w-5 text-aloe" />
+                <HelpCircle className="h-5 w-5 text-shade-40" aria-hidden="true" />
                 <h2
                   ref={quizHeadingRef}
                   tabIndex={-1}
-                  className="font-heading text-lg md:text-xl font-bold text-white focus:outline-none"
+                  className="font-heading text-xl font-light text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 md:text-2xl"
                 >
                   Lesson Checkpoint
                 </h2>
@@ -326,21 +323,21 @@ export function LessonClient({ lessonId }) {
                         key={option}
                         disabled={quizSubmitted}
                         onClick={() => setQuizSelected(option)}
-                        className={`w-full h-12 text-left px-4 rounded-xl border text-sm font-medium transition-all flex items-center justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${btnClass}`}
+                        className={`w-full h-12 text-left px-4 rounded-xl border text-sm font-medium transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${btnClass}`}
                       >
                         <span>{option}</span>
                         {quizSubmitted && isSelected && isCorrect && (
-                          <span className="flex items-center gap-1 text-emerald-400 text-xs font-mono">
+                          <span className="flex items-center gap-1 text-emerald-400 text-xs">
                             Correct <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                           </span>
                         )}
                         {quizSubmitted && isSelected && !isCorrect && (
-                          <span className="flex items-center gap-1 text-rose-400 text-xs font-mono">
+                          <span className="flex items-center gap-1 text-rose-400 text-xs">
                             Incorrect <XCircle className="h-4 w-4 text-rose-400" />
                           </span>
                         )}
                         {quizSubmitted && !isSelected && isCorrect && (
-                          <span className="flex items-center gap-1 text-emerald-400 text-xs font-mono">
+                          <span className="flex items-center gap-1 text-emerald-400 text-xs">
                             Answer <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                           </span>
                         )}
@@ -380,7 +377,7 @@ export function LessonClient({ lessonId }) {
               Submit Checkpoint
             </Button>
           ) : quizSelected === lesson.quiz.correct ? (
-            <Button asChild variant="primary" size="sm" className="flex items-center gap-1.5 bg-aloe text-black hover:bg-aloe/90">
+            <Button asChild variant="primary" size="sm" className="flex items-center gap-1.5">
               <Link href="/learn">
                 Complete Lesson <Award className="h-4 w-4 ml-0.5" />
               </Link>

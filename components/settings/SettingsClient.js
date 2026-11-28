@@ -79,7 +79,7 @@ export default function SettingsClient() {
     return (
       <Container className="py-8 bg-black text-white">
         <div className="text-center py-20">
-          <p className="text-shade-40">Loading settings...</p>
+          <p className="text-shade-40">Loading settings…</p>
         </div>
       </Container>
     );
@@ -119,7 +119,7 @@ export default function SettingsClient() {
                   maxLength={20}
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="bg-canvas-night border border-hairline-dark px-4 py-1.5 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-accent font-semibold text-white"
+                  className="bg-canvas-night border border-hairline-dark px-4 py-1.5 text-sm rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus:ring-2 focus:ring-accent font-semibold text-white"
                 />
                 <Button size="sm" variant="outline-on-dark" onClick={handleSaveName}>
                   Save
@@ -138,7 +138,7 @@ export default function SettingsClient() {
                       key={opt.id}
                       onClick={() => profile.setAvatar(opt.id)}
                       className={cn(
-                        "flex flex-col items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-white/10 transition-all duration-200",
+                        "flex flex-col items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-white/10 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200",
                         active ? "border-white bg-canvas-night text-white" : "border-hairline-dark bg-canvas-night-elevated text-white"
                       )}
                     >
@@ -173,7 +173,7 @@ export default function SettingsClient() {
                     key={r.id}
                     onClick={() => settings.setDateRange(r.id)}
                     className={cn(
-                      "flex flex-col items-start gap-1 p-4 border rounded-xl text-left cursor-pointer transition-all duration-200 hover:bg-white/5",
+                      "flex flex-col items-start gap-1 p-4 border rounded-xl text-left cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 hover:bg-white/5",
                       active
                         ? "border-white bg-white text-black shadow-sm"
                         : "border-hairline-dark bg-canvas-night text-white"

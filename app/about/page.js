@@ -2,6 +2,7 @@ import React from "react";
 import { HelpCircle, Brain, BookOpen, Compass } from "lucide-react";
 import { Container } from "../../components/ui/Container";
 import { PageHeader } from "../../components/shared/PageHeader";
+import { ScrollMotion } from "../../components/shared/ScrollMotion";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/Card";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +21,10 @@ export default function AboutPage() {
         description="The Doomsday Rule is an algorithm created by John Conway to calculate the day of the week for any calendar date mentally in seconds."
       />
 
-      <div className="space-y-12 leading-relaxed pb-16">
+      <ScrollMotion progress className="space-y-12 leading-relaxed pb-16">
         {/* Origin Section */}
-        <section className="space-y-4 text-left">
-          <h2 className="heading-xl text-white font-bold tracking-tight flex items-center gap-2.5">
+        <section data-reveal-section className="space-y-4 text-left">
+          <h2 data-reveal className="heading-xl text-white font-bold tracking-tight flex items-center gap-2.5">
             <Compass className="h-6 w-6 text-aloe" /> Origin & Concept
           </h2>
           <p className="text-sm md:text-base text-shade-40 leading-relaxed">
@@ -35,9 +36,9 @@ export default function AboutPage() {
         </section>
 
         {/* Century Anchors Section */}
-        <section className="space-y-6 border-t border-hairline-dark pt-8 text-left">
+        <section data-reveal-section className="space-y-6 border-t border-hairline-dark pt-8 text-left">
           <div className="space-y-1">
-            <h2 className="heading-xl text-white font-bold tracking-tight flex items-center gap-2.5">
+            <h2 data-reveal className="heading-xl text-white font-bold tracking-tight flex items-center gap-2.5">
               <Brain className="h-6 w-6 text-aloe" /> Century Anchors
             </h2>
             <p className="text-sm text-shade-40">
@@ -55,14 +56,15 @@ export default function AboutPage() {
             ].map((c) => (
               <div
                 key={c.range}
-                className={`p-5 sm:p-6 rounded-2xl border text-center flex flex-col items-center justify-between transition-all ${
+                data-card-batch
+                className={`p-5 sm:p-6 rounded-2xl border text-center flex flex-col items-center justify-between transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                   c.isCurrent
-                    ? "border-emerald-400/50 bg-emerald-500/10 shadow-[0_0_25px_rgba(16,185,129,0.15)]"
+                    ? "border-emerald-400/50 bg-emerald-500/10 "
                     : "border-hairline-dark bg-canvas-night-elevated hover:border-white/20"
                 }`}
               >
                 <div className="space-y-0.5">
-                  <span className="text-sm sm:text-base font-mono font-bold text-shade-30 block uppercase tracking-wider">
+                  <span className="text-sm sm:text-base font-mono font-bold text-shade-30 block ">
                     {c.range}
                   </span>
                   <span className="text-[11px] text-shade-50 font-mono block">
@@ -82,17 +84,17 @@ export default function AboutPage() {
           </div>
 
           {/* Month Anchors Table */}
-          <div className="pt-4">
+          <div data-reveal className="pt-4">
             <Card className="border-hairline-dark bg-canvas-night-elevated overflow-hidden">
               <CardHeader className="p-4 md:p-5 border-b border-hairline-dark">
-                <CardTitle className="text-xs uppercase font-bold tracking-wider text-shade-40 font-mono">
+                <CardTitle className="text-xs font-bold  text-shade-40 font-mono">
                   Month Anchors Reference
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <table className="w-full text-xs sm:text-sm text-left font-mono">
                   <thead>
-                    <tr className="bg-white/5 border-b border-hairline-dark text-white uppercase text-[10px] tracking-wider">
+                    <tr className="bg-white/5 border-b border-hairline-dark text-white text-[10px] ">
                       <th className="py-3 px-4 sm:px-6 font-semibold">Months</th>
                       <th className="py-3 px-4 sm:px-6 font-semibold">Doomsday Anchor Dates</th>
                     </tr>
@@ -130,16 +132,16 @@ export default function AboutPage() {
         </section>
 
         {/* Calculation Formula Walkthrough */}
-        <section className="space-y-4 border-t border-hairline-dark pt-8 text-left">
-          <h2 className="heading-xl text-white font-bold tracking-tight flex items-center gap-2.5">
+        <section data-reveal-section data-calc-section className="space-y-4 border-t border-hairline-dark pt-8 text-left">
+          <h2 data-reveal className="heading-xl text-white font-bold tracking-tight flex items-center gap-2.5">
             <BookOpen className="h-6 w-6 text-aloe" /> Calculation Pipeline
           </h2>
           <p className="text-sm md:text-base text-shade-40 leading-relaxed">
             The year offset represents how many days a target year steps forward from its century anchor. Compute it using the 12-divisor rule:
           </p>
 
-          <div className="border border-hairline-dark bg-canvas-night-elevated p-6 md:p-8 rounded-2xl space-y-4">
-            <div className="flex items-start gap-4">
+          <div data-reveal className="border border-hairline-dark bg-canvas-night-elevated p-6 md:p-8 rounded-2xl space-y-4">
+            <div data-calc-step className="flex items-start gap-4">
               <span className="kbd-badge shrink-0 text-xs">
                 1
               </span>
@@ -148,7 +150,7 @@ export default function AboutPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
+            <div data-calc-step className="flex items-start gap-4">
               <span className="kbd-badge shrink-0 text-xs">
                 2
               </span>
@@ -157,7 +159,7 @@ export default function AboutPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
+            <div data-calc-step className="flex items-start gap-4">
               <span className="kbd-badge shrink-0 text-xs">
                 3
               </span>
@@ -166,7 +168,7 @@ export default function AboutPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
+            <div data-calc-step className="flex items-start gap-4">
               <span className="kbd-badge shrink-0 text-xs">
                 4
               </span>
@@ -180,7 +182,7 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
-      </div>
+      </ScrollMotion>
     </Container>
   );
 }

@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Sun, Moon, Laptop } from "lucide-react";
 import { useSettingsStore, applyTheme } from "../../stores/settingsStore";
+import { useMounted } from "../../lib/shared/useMounted";
 
 export function ThemeToggle() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
 
-  // Trigger hydration manually on mount and mark as mounted
   useEffect(() => {
     useSettingsStore.persist.rehydrate();
-    setMounted(true);
   }, []);
 
   // Ensure theme settings are applied correctly on mount
@@ -61,7 +60,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={cycleTheme}
-      className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-foreground transition-all hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer"
+      className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus:ring-2 focus:ring-accent cursor-pointer"
       title={`Current: ${getLabel()}. Click to change.`}
       aria-label="Toggle theme"
     >

@@ -8,6 +8,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
+
 export function SmoothScroll() {
   const pathname = usePathname();
   const lenisRef = useRef(null);
@@ -49,6 +51,17 @@ export function SmoothScroll() {
       ScrollTrigger.refresh();
     }
   }, [pathname]);
+
+  useEffect(() => {
+    // Web fonts shift layout after load; re-measure triggers once they settle.
+    let cancelled = false;
+    document.fonts?.ready.then(() => {
+      if (!cancelled) ScrollTrigger.refresh();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return null;
 }

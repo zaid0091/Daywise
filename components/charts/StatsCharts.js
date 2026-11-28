@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -14,20 +14,20 @@ import {
 } from "recharts";
 import { BarChart3, LineChart as LineIcon, Award } from "lucide-react";
 import { useProfileStore } from "../../stores/profileStore";
+import { useMounted } from "../../lib/shared/useMounted";
 
 export function StatsCharts() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const profile = useProfileStore();
 
   useEffect(() => {
-    setMounted(true);
     useProfileStore.persist.rehydrate();
   }, []);
 
   if (!mounted) {
     return (
       <div className="w-full h-64 bg-canvas-night-elevated border border-hairline-dark rounded-2xl flex items-center justify-center text-xs text-zinc-600 dark:text-zinc-400">
-        Loading analytics...
+        Loading analytics…
       </div>
     );
   }
@@ -63,7 +63,7 @@ export function StatsCharts() {
     <div className="grid md:grid-cols-2 gap-5 w-full">
       {/* 1. Score History Chart */}
       <div className="border border-hairline-dark bg-canvas-night-elevated p-6 rounded-2xl space-y-4">
-        <h3 className="text-xs font-bold tracking-wider text-zinc-600 dark:text-zinc-400 uppercase flex items-center gap-2">
+        <h3 className="text-xs font-bold text-zinc-600 dark:text-zinc-400  flex items-center gap-2">
           <LineIcon className="h-4 w-4 text-white" /> Score History (pts)
         </h3>
         <div className="h-56 w-full">
@@ -97,7 +97,7 @@ export function StatsCharts() {
 
       {/* 2. Solve Accuracy Chart */}
       <div className="border border-hairline-dark bg-canvas-night-elevated p-6 rounded-2xl space-y-4">
-        <h3 className="text-xs font-bold tracking-wider text-zinc-600 dark:text-zinc-400 uppercase flex items-center gap-2">
+        <h3 className="text-xs font-bold text-zinc-600 dark:text-zinc-400  flex items-center gap-2">
           <Award className="h-4 w-4 text-aloe" /> Accuracy rate (%)
         </h3>
         <div className="h-56 w-full">

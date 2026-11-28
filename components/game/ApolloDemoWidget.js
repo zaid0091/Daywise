@@ -7,16 +7,18 @@ import { CheckCircle2, XCircle, ArrowRight, RefreshCw, Sparkles, Brain } from "l
 import { Button } from "../ui/Button";
 import { cn } from "../../lib/utils";
 
+const TARGET_DATE = {
+  dateStr: "July 20, 1969",
+  event: "Apollo 11 Moon Landing",
+  correctDay: "Sunday",
+  options: ["Monday", "Wednesday", "Friday", "Sunday"],
+};
+
 export function ApolloDemoWidget() {
   const [selected, setSelected] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
 
-  const targetDate = {
-    dateStr: "July 20, 1969",
-    event: "Apollo 11 Moon Landing",
-    correctDay: "Sunday",
-    options: ["Monday", "Wednesday", "Friday", "Sunday"],
-  };
+  const targetDate = TARGET_DATE;
 
   const handleSelect = (option) => {
     setSelected(option);
@@ -45,13 +47,13 @@ export function ApolloDemoWidget() {
   }, [selected]);
 
   return (
-    <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-[0_20px_50px_rgba(0,0,0,0.75)] overflow-hidden relative">
+    <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#0a0a0a] overflow-hidden relative">
       <div className="p-6 flex flex-col justify-between min-h-[344px] gap-4">
         {/* Card Header Top Bar */}
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            <span className="text-xs font-mono text-shade-40">
+            <span className="h-2 w-2 rounded-full bg-white/40" />
+            <span className="text-sm text-shade-40">
               Mental math simulator
             </span>
           </div>
@@ -79,7 +81,7 @@ export function ApolloDemoWidget() {
               >
                 {/* Target Date Section */}
                 <div className="text-center py-1 space-y-1">
-                  <p className="text-xs font-mono text-emerald-400">
+                  <p className="text-sm text-white/80">
                     {targetDate.event}
                   </p>
                   <p className="text-xs text-shade-40">What day of the week was</p>

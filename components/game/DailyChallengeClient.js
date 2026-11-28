@@ -11,18 +11,18 @@ import { SectionBadge } from "../ui/SectionBadge";
 import { useDailyStore } from "../../stores/dailyStore";
 import { useProfileStore } from "../../stores/profileStore";
 import { getLocalDateString } from "../../lib/game/streaks";
+import { useMounted } from "../../lib/shared/useMounted";
 import { GameClient } from "./GameClient";
 import { cn } from "../../lib/utils";
 
 export default function DailyChallengeClient() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [isPlaying, setIsPlaying] = useState(false);
 
   const dailyStore = useDailyStore();
   const profileStore = useProfileStore();
 
   useEffect(() => {
-    setMounted(true);
     useDailyStore.persist.rehydrate();
     useProfileStore.persist.rehydrate();
   }, []);
@@ -31,7 +31,7 @@ export default function DailyChallengeClient() {
     return (
       <Container className="py-8 bg-black text-white">
         <div className="text-center py-20">
-          <p className="text-shade-40">Loading Daily Challenge...</p>
+          <p className="text-shade-40">Loading Daily Challenge…</p>
         </div>
       </Container>
     );
@@ -59,7 +59,7 @@ export default function DailyChallengeClient() {
 
   if (isPlaying && !isCompleted) {
     return (
-      <Suspense fallback={<div className="py-20 text-center text-shade-40">Loading Daily Arena...</div>}>
+      <Suspense fallback={<div className="py-20 text-center text-shade-40">Loading Daily Arena…</div>}>
         <GameClient mode="daily" />
       </Suspense>
     );
@@ -108,7 +108,7 @@ export default function DailyChallengeClient() {
                 <div className="overflow-x-auto w-full">
                   <table className="w-full text-xs text-left border-collapse font-sans">
                     <thead>
-                      <tr className="bg-white/5 border-b border-hairline-dark text-white uppercase text-[10px] tracking-wider font-semibold">
+                      <tr className="bg-white/5 border-b border-hairline-dark text-white text-[10px]  font-semibold">
                         <th className="py-3 px-6">Target Date</th>
                         <th className="py-3 px-6">Correct Answer</th>
                         <th className="py-3 px-6">Your Answer</th>
@@ -211,7 +211,7 @@ export default function DailyChallengeClient() {
                       <Award className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                      <span className="text-[10px] text-shade-40 block font-semibold uppercase tracking-wider">Difficulty</span>
+                      <span className="text-[10px] text-shade-40 block font-semibold ">Difficulty</span>
                       <span className="text-sm font-bold text-white block mt-0.5">Mixed</span>
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export default function DailyChallengeClient() {
                       <Timer className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                      <span className="text-[10px] text-shade-40 block font-semibold uppercase tracking-wider">Estimated Time</span>
+                      <span className="text-[10px] text-shade-40 block font-semibold ">Estimated Time</span>
                       <span className="text-sm font-bold text-white block mt-0.5">1 - 2 mins</span>
                     </div>
                   </div>
