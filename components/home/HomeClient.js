@@ -85,6 +85,9 @@ const GRAIN =
   + "<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter>"
   + "<rect width='100%' height='100%' filter='url(%23n)'/></svg>\")";
 
+// Labels for the fixed section index, in page order (one per <section>).
+const INDEX_LABELS = ["Intro", "Method", "Train", "Begin"];
+
 export function HomeClient() {
   const rootRef = useRef(null);
   const heroMouseRef = useRef({ x: 0, y: 0 });
@@ -152,6 +155,17 @@ export function HomeClient() {
           line.textContent = "";
           line.append(sr, visual);
         });
+
+        // Grid parallax: the grid drifts slower than the page, so the sections feel layered.
+        gsap.fromTo(
+          "[data-grid-layer]",
+          { y: 0 },
+          {
+            y: -120,
+            ease: "none",
+            scrollTrigger: { trigger: rootRef.current, start: "top top", end: "bottom bottom", scrub: 0.6 },
+          }
+        );
 
         // The one orchestrated moment: a single page-load sequence.
         gsap
@@ -358,7 +372,42 @@ export function HomeClient() {
       return () => ctx.revert();
     });
 
-    return () => mm.revert();
+    // Section index: the line for the section in view lengthens; clicking a tick scrolls to its section.
+    const indexHandles = [];
+    const sectionEls = gsap.utils.toArray("[data-index-section]", rootRef.current);
+    const indexButtons = gsap.utils.toArray("[data-index-tick]", rootRef.current);
+    const setActive = (i) => {
+      indexButtons.forEach((btn, j) => {
+        btn.querySelector("[data-index-line]")?.setAttribute("data-active", j === i ? "true" : "false");
+      });
+    };
+    indexButtons.forEach((btn, j) => {
+      const go = () =>
+        sectionEls[j]?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          block: "start",
+        });
+      btn.addEventListener("click", go);
+      indexHandles.push({ kill: () => btn.removeEventListener("click", go) });
+    });
+    sectionEls.forEach((el, i) => {
+      indexHandles.push(
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 55%",
+          end: "bottom 55%",
+          onToggle: (self) => {
+            if (self.isActive) setActive(i);
+          },
+        })
+      );
+    });
+    setActive(0);
+
+    return () => {
+      indexHandles.forEach((h) => h.kill());
+      mm.revert();
+    };
   }, []);
 
   return (
@@ -367,6 +416,19 @@ export function HomeClient() {
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.045] mix-blend-screen"
         style={{ backgroundImage: GRAIN }}
+      />
+      {/* Hairline architectural grid: structure only, faded toward the edges */}
+      <div
+        aria-hidden="true"
+        data-grid-layer
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(255,255,255,0.055) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.055) 1px, transparent 1px)",
+          backgroundSize: "120px 120px",
+          maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, #000 35%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, #000 35%, transparent 100%)",
+        }}
       />
       <div
         aria-hidden="true"
@@ -381,8 +443,18 @@ export function HomeClient() {
         className="pointer-events-none fixed left-0 right-0 top-0 z-[60] h-[2px] origin-left scale-x-0 bg-emerald-400"
       />
 
+      {/* Section index: a fixed rail on desktop. The active section's line lengthens; a tick jumps to its section. */}
+      <nav aria-label="Page sections" className="fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-end gap-4 lg:flex">
+        {INDEX_LABELS.map((label) => (
+          <button key={label} type="button" data-index-tick aria-label={`Go to ${label}`} className="group flex items-center gap-3 focus-visible:outline-none">
+            <span className="text-xs text-shade-40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">{label}</span>
+            <span data-index-line className="block h-px w-4 bg-white/30 transition-all duration-500 group-hover:bg-white/70 data-[active=true]:w-10 data-[active=true]:bg-white" />
+          </button>
+        ))}
+      </nav>
+
       {/* HERO: the interactive demo is the memorable element */}
-      <section
+      <section data-index-section
         onPointerMove={handleHeroPointerMove}
         onPointerLeave={handleHeroPointerLeave}
         className="relative overflow-hidden border-b border-hairline-dark"
@@ -438,7 +510,7 @@ export function HomeClient() {
       </section>
 
       {/* METHOD: a true sequence, so the steps are numbered */}
-      <section data-method-section className="border-b border-hairline-dark py-24 md:py-32">
+      <section data-index-section data-method-section className="border-b border-hairline-dark py-24 md:py-32">
         <Container className="max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="flex flex-col gap-6 self-start lg:sticky lg:top-32 lg:col-span-5">
@@ -498,7 +570,7 @@ export function HomeClient() {
       </div>
 
       {/* PLACES TO PRACTISE: a plain ruled list, no decorative cards */}
-      <section className="border-b border-hairline-dark py-24 md:py-32">
+      <section data-index-section className="border-b border-hairline-dark py-24 md:py-32">
         <Container className="max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div data-reveal className="space-y-4 lg:col-span-4">
@@ -535,7 +607,7 @@ export function HomeClient() {
       </section>
 
       {/* CLOSING */}
-      <section className="py-24 md:py-32">
+      <section data-index-section className="py-24 md:py-32">
         <Container className="max-w-7xl">
           <div data-reveal className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
             <div className="max-w-xl space-y-4">
